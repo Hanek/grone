@@ -61,11 +61,15 @@ namespace tmdb
     core();
     ~core();
     static void cacheIt(serializer& s);
+    static void bm_walk();
   private:
     static bool instance_;
     static std::map<time,void*> bmap_;
     static std::map<std::string,std::map<time,void*> > dmap_;
   };
+  
+  typedef std::map<time,void*>::const_iterator bm_cit_;
+  
   
 }
 

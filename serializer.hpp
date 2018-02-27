@@ -21,6 +21,7 @@ namespace tmdb
 {
 
 /* TODO failed malloc handling  */
+/* TODO c++ alloc/casting */
 
 class serializer
 {
@@ -33,8 +34,8 @@ class serializer
  *    |s i g n a t u r e|          b l o c k   b o d y        |
  *
  *    serializer used to accumulate data pieces as blocks
- *    each block started with sign_block() with dev_id of variable length, 
- *    and finalized with finalize()   
+ *    each block starts with sign_block() with dev_id of variable length, 
+ *    ends up with finalize()   
  */
 
 private:
@@ -122,6 +123,25 @@ public:
     memcpy(buf_, bufin, sizein);
     message_len_ = (int)sizein;
   }
+  
+  
+  void* detach_buffer()
+  {
+    void* mem = (void*)buf_;
+    
+    buf_ = (char*)malloc(size_);
+    if(!mem)
+    {
+      malloc_failed_stderr(__func__, errno);
+      return NULL;
+    }
+  
+    clear();
+    
+    return mem;
+  }
+  
+  
   
   /* allocate memory and copy */
   void* copy_buffer()

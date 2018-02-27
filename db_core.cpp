@@ -28,16 +28,26 @@ namespace tmdb
     {
       std::cout << str << std::endl;
       memset(str, 0x00, 4096);
+      /* insert current block into map */
     }
     
     
     
     get_time(t);
     /* return allocated memory from serializer */
-    void* buf = s.copy_buffer();
+    void* buf = s.detach_buffer();
     bmap_[t] = buf;
     
     
+  }
+  
+  
+  void core::bm_walk()
+  {
+    for(bm_cit_ cit = bmap_.begin(); cit != bmap_.end(); cit++)
+    {
+      std::cout << cit->first << std::endl;
+    }
   }
   
   

@@ -183,7 +183,7 @@ void tmdb_test()
   is.finalize_block();
   
   tmdb::core::cacheIt(is);
-     
+  tmdb::core::bm_walk();   
 }
  
  
