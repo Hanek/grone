@@ -33,7 +33,7 @@ class serializer
  *    | cstring | size_t|  int  |   cstring   |     float     |
  *    |s i g n a t u r e|          b l o c k   b o d y        |
  *
- *    serializer used to accumulate data pieces as blocks
+ *    serializer used to accumulate pod data as blocks
  *    each block starts with sign_block() with dev_id of variable length, 
  *    ends up with finalize()   
  */
@@ -227,7 +227,8 @@ public:
     return true;
   }
   
-  bool get_block(char* id)
+  /* iterate over dev_id */
+  void* get_block(char* id)
   {    
     strcpy(id, pos_);
     hlen_ = strlen(id);
@@ -237,13 +238,14 @@ public:
     
      
     if(message_len_ <= pos_ - buf_)
-    { return false; }
+    { return NULL; }
         
     memcpy(&block_len_, beg_ + hlen_ + 1, sizeof(block_len_));
     pos_ = beg_ + hlen_ + sizeof(hlen_) + 1 + block_len_;
     beg_ += block_len_ + hlen_ + sizeof(block_len_) + 1; 
     
-    return true;
+    /* return pointer to data behind current dev_id */
+    return pos_ - block_len_;
   }
   
   /********** serialization methods **********/
@@ -296,6 +298,20 @@ public:
     pos_ += sizeof(T);
   }
   
+  char* deserialize_cstring_ext(char* pos, char* str)
+  {
+    memcpy((void*)str, pos, strlen(pos)); 
+    pos += strlen(pos) + 1;
+    return pos;
+  }
+  
+  template <class T> void deserialize_ext(char* pos, T* var)
+  {
+    memcpy((void*)var, pos, sizeof(T)); 
+    pos += sizeof(T);
+//     return pos;
+  }
+  
   void dump()
   {
     std::ofstream file("buf.bin", std::ios::out | std::ios::binary);
@@ -304,6 +320,7 @@ public:
   }
 };
 
+  
 }
 #endif
 

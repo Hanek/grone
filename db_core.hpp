@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <vector>
 
 #ifndef _DB_CORE_H
 #define _DB_CORE_H
@@ -62,15 +63,19 @@ namespace tmdb
     ~core();
     static void cacheIt(serializer& s);
     static void bm_walk();
+    static void dm_walk();
   private:
     static bool instance_;
+    /* bare map, holds chunks of memory detached from serializer */
     static std::map<time,void*> bmap_;
-    static std::map<std::string,std::map<time,void*> > dmap_;
+    /* device map, holds pointers to device data */ 
+    static std::map<std::string,std::vector<std::pair<void*,time> > > dmap_;
   };
   
   typedef std::map<time,void*>::const_iterator bm_cit_;
-  
-  
+  typedef std::map<time,void*>::iterator bm_it_;
+  typedef std::map<std::string,std::vector<std::pair<void*,time> > >::const_iterator dm_cit_;
+  typedef std::map<std::string,std::vector<std::pair<void*,time> > >::iterator dm_it_;
 }
 
 

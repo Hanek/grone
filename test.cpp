@@ -182,8 +182,48 @@ void tmdb_test()
   is.serialize<float>(666.666);
   is.finalize_block();
   
+  is.sign_block("first device");
+  is.serialize<int>(8096);
+  is.serialize<char>('x');
+  is.serialize_cstring("some cstring here");
+  is.serialize<float>(3.141592);
+  is.finalize_block();
+  
+  
+  
   tmdb::core::cacheIt(is);
-  tmdb::core::bm_walk();   
+  
+  is.sign_block("first device");
+  is.serialize<int>(40962);
+  is.serialize<char>('b');
+  is.serialize_cstring("some cstring here");
+  is.serialize<float>(3.141592);
+  is.finalize_block();
+  
+  is.sign_block("second device variable length");
+  is.serialize<int>(10242);
+  is.serialize<char>('y');
+  is.serialize_cstring("...");
+  is.serialize<float>(666.666);
+  is.finalize_block();
+  
+  is.sign_block("first device");
+  is.serialize<int>(80962);
+  is.serialize<char>('w');
+  is.serialize_cstring("some cstring here");
+  is.serialize<float>(3.141592);
+  is.finalize_block();
+  
+  
+  tmdb::core::cacheIt(is);
+  
+  
+  
+  
+  
+  
+  tmdb::core::bm_walk();  
+  tmdb::core::dm_walk();
 }
  
  
