@@ -4,6 +4,7 @@ PRODUCT_FLAGS =
 
 SOURCES = \
 	time.cpp\
+        serializer.cpp\
 	db_core.cpp\
 	test.cpp
 

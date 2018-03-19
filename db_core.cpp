@@ -25,21 +25,24 @@ namespace tmdb
     char str[4096] = {0};
     
     s.reset();
-    
+   
+    /* get_block() return pointer to block and copy device_id to str */ 
     for(void* block = s.get_block(str); block; block = s.get_block(str))
     {
+      /* device_id of current block */
       std::string device_id(str);
       memset(str, 0x00, 4096);
-      std::cout << device_id << std::endl; 
+      std::cout << device_id << std::endl;
+     /* block is a pointer to device data */
       std::pair<void*,time> device = std::make_pair(block, t);
       
       dm_it_ it = dmap_.find(device_id);
       if(it != dmap_.end())
-      {/* update */
+      {/* update exsisting, by pushing we always keep data series in order */
         it->second.push_back(device);
       }
       else
-      {/* insert */
+      {/* insert new device in the map */
         std::vector<std::pair<void*,time> >v_dev;
         v_dev.push_back(device);
         dmap_.insert(std::pair<std::string,std::vector<std::pair<void*,time> > >(device_id, v_dev));
