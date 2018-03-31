@@ -3,7 +3,7 @@
 namespace tmdb
 {
 
-serializer::serializer(size_t size): size_(size), hlen_(0)
+serializer::serializer(size_t size): size_(size), hlen_(0), external_(false)
   {  
     buf_  = (char*)malloc(size_);
     if(!buf_)
@@ -18,6 +18,15 @@ serializer::serializer(size_t size): size_(size), hlen_(0)
     block_len_   = 0;
   }
 
+
+serializer::serializer(char* buf): size_(32), hlen_(0), external_(true)
+  {  
+    buf_  = buf;
+    message_len_ = 0;
+    pos_         = buf_ + hlen_; 
+    beg_         = buf_;
+    block_len_   = 0;
+  }
 
 
 bool serializer::out_of_mem()

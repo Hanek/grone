@@ -11,7 +11,7 @@
 #include "time.hpp"
 #include "db_core.hpp"
 #include "serializer.hpp"
-
+#include "devices.hpp"
 
 void linear_serializer_test()
 { 
@@ -162,10 +162,52 @@ void test_std_queue()
 // 100000000
 // 132000000 serializer
 // 139031070 std_stream  
- 
+
+
+
+/* used by all devices, no concurrency allowed */
+tmdb::serializer srl(16);
+
+
+/*
+ * "serial_device"
+ * int x
+ * int y
+ * float m
+ * cstring type
+ */
+void serialize_1(std::string& dev_id, int x, int y, float m, std::string& type) 
+{
+  srl.sign_block(dev_id.c_str());
+  srl.serialize<int>(x);
+  srl.serialize<int>(y);
+  srl.serialize<float>(m);
+  srl.serialize_cstring(type.c_str());
+  srl.finalize_block();
+}
+
+void deserialize_1(char* p, int& x, int& y, float& m, std::string& type) 
+{
+  char buf[1024] = {0};
+  tmdb::serializer s(p);
+  s.deserialize<int>(&x);
+  s.deserialize<int>(&y);
+  s.deserialize<float>(&m);
+  s.deserialize_cstring(buf);
+  type = std::string(buf);
+}
+
+/*
+ * "custom device"
+ * cstring name
+ * double u1
+ * double u2
+ * double u3
+ */
  
 void tmdb_test()
 {
+  tmdb::core c;
   tmdb::serializer is(16);
   
   is.sign_block("first device");
@@ -191,7 +233,7 @@ void tmdb_test()
   
   
   
-  tmdb::core::cacheIt(is);
+  c.cacheIt(is);
   
   is.sign_block("first device");
   is.serialize<int>(40962);
@@ -215,15 +257,22 @@ void tmdb_test()
   is.finalize_block();
   
   
-  tmdb::core::cacheIt(is);
+  c.cacheIt(is);
   
   
   
   
   
   
-  tmdb::core::bm_walk();  
-  tmdb::core::dm_walk();
+  c.bm_walk();  
+  c.dm_walk();
+}
+
+
+void devices_test()
+{
+  tmdb::test_device1::data d1_unit;
+  tmdb::test_device2::data d2_unit;
 }
  
  
@@ -231,7 +280,9 @@ int main()
 {
 //   linear_serializer_test();
 //   linear_std_stream_test(4000000);  
-  tmdb_test();
-  
-  return 0;
+//  tmdb_test();
+
+ devices_test();
+ 
+ return 0;
 }

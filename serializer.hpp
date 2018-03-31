@@ -67,7 +67,9 @@ private:
 
   /* length of dev_id header, calculated as (dev_id) */
   int hlen_;
-  
+
+  /* on if constructed with external buffer */
+  bool external_;  
 
   std::map<std::string, std::vector<std::string> > device_map_;
 
@@ -78,7 +80,8 @@ private:
    
 public:
   serializer(size_t size);  
-  ~serializer() { free(buf_); }
+  serializer(char* buf);
+  ~serializer() { if(!external_){ free(buf_); } }
   bool empty() { return (0 == size_) ? 1 : 0; }
   size_t get_size() { return size_; }
   size_t length() { return message_len_; }
@@ -154,19 +157,7 @@ public:
     pos_ += sizeof(T);
   }
   
-  char* deserialize_cstring_ext(char* pos, char* str)
-  {
-    memcpy((void*)str, pos, strlen(pos)); 
-    pos += strlen(pos) + 1;
-    return pos;
-  }
-  
-  template <class T> void deserialize_ext(char* pos, T* var)
-  {
-    memcpy((void*)var, pos, sizeof(T)); 
-    pos += sizeof(T);
-//     return pos;
-  }
+  /*********************************************************************/
   
   void dump()
   {

@@ -16,6 +16,12 @@ namespace tmdb
   
   core::~core()
   {
+    for(bm_cit_ cit = bmap_.begin(); cit != bmap_.end(); cit++)
+    {
+      free(cit->second);
+      std::cout << cit->first << std::endl;
+    }
+ 
   }
   
   void core::cacheIt(serializer& s)
@@ -70,6 +76,7 @@ namespace tmdb
   
   void core::dm_walk()
   {
+    char buf[256] = {0};
     std::cout << "==================== dm_walk ====================\n";
     for(dm_cit_ cit = dmap_.begin(); cit != dmap_.end(); cit++)
     {
@@ -77,12 +84,24 @@ namespace tmdb
       std::cout << cit->first << std::endl;
       for(vit = cit->second.begin(); vit != cit->second.end(); vit++)
       {
-        int a = 0;
+        /* callback to device serialization routine */
+        int a;
         char c = 0;
-        serializer s(8);
-        s.deserialize_ext<int>((char*)vit->first, &a);
-        s.deserialize_ext<char>((char*)vit->first + sizeof(a), &c);
-        std::cout << "\t" << vit->second << ": " << a << ": " << c << std::endl;
+        float f;
+        /* use as external buffer */
+        serializer s((char*)vit->first);
+        memset(buf, 0x00, sizeof(buf));
+
+        s.deserialize<int>(&a);
+        s.deserialize<char>(&c);
+        s.deserialize_cstring(buf);
+        s.deserialize<float>(&f);
+
+        std::cout << "\t" << vit->second 
+                  << " : " << a 
+                  << " : " << c 
+                  << " : " << buf 
+                  << " : " << f << std::endl;
       }
     }
   }

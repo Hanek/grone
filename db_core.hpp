@@ -61,9 +61,9 @@ namespace tmdb
   public:
     core();
     ~core();
-    static void cacheIt(serializer& s);
-    static void bm_walk();
-    static void dm_walk();
+    void cacheIt(serializer& s);
+    void bm_walk();
+    void dm_walk();
   private:
     static bool instance_;
     /* bare map, holds chunks of memory detached from serializer */
