@@ -273,16 +273,29 @@ void devices_test()
 {
   tmdb::test_device1::data d1_unit;
   tmdb::test_device2::data d2_unit;
+  tmdb::test_device1 td1();
+  
+  tmdb::device_factory f;
+  f.register_device2<tmdb::test_device1>("device1");
+  f.register_device2<tmdb::test_device2>("device2");
+
+  tmdb::device* pDev = f.create2("device1", &d1_unit);
+  pDev->serialize();
+  delete pDev;
+
+  pDev = f.create2("device2", &d2_unit);
+  pDev->serialize();
+  delete pDev;
+
 }
  
  
 int main()
 {
-//   linear_serializer_test();
-//   linear_std_stream_test(4000000);  
-//  tmdb_test();
+  //   linear_serializer_test();
+  //   linear_std_stream_test(4000000);  
+  tmdb_test();
 
- devices_test();
- 
- return 0;
+  devices_test();
+  return 0;
 }

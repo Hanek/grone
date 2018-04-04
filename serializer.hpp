@@ -150,6 +150,11 @@ public:
     pos_ += strlen(pos_) + 1;
   }
   
+  void deserialize_cstring(std::string& str)
+  {
+    str = std::string(pos_);
+    pos_ += strlen(pos_) + 1;
+  }
   
   template <class T> void deserialize(T* var)
   {

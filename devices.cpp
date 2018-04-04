@@ -4,44 +4,85 @@
 
 namespace tmdb
 {
- serializer*  device::is = new serializer(32);
-  
-  device::device(const char* id): device_id_(std::string(id))
+  serializer*  device::ins = new serializer(33);
+
+  test_device1::test_device1(void* mem)
   {
-    
+
+
+  }
+
+  void test_device1::serialize()
+  {
+    std::cout << "serialize1\n";
+  }
+
+  void test_device1::deserialize(void* block)
+  {
+  }
+
+  void test_device1::serialize(void* mem)
+  {
+    std::cout << "serialize1\n";
+    data& unit = *(static_cast<data*>(mem));
+    //   ins->sign_block(device_id_.c_str());
+    ins->serialize<int>(unit.x_);
+    ins->serialize<int>(unit.y_);
+    ins->serialize<float>(unit.val_);
+    ins->serialize<double>(unit.sp_);
+    ins->serialize_cstring(unit.descr_.c_str());
+    ins->serialize<char>(unit.mode_);
+    ins->finalize_block();
+  }
+
+  void test_device1::deserialize(void* block, void* mem)
+  {
+    data& unit = *(static_cast<data*>(mem));
+    serializer exs(static_cast<char*>(block));
+    exs.deserialize<int>(&unit.x_);
+    exs.deserialize<int>(&unit.y_);
+    exs.deserialize<float>(&unit.val_);
+    exs.deserialize<double>(&unit.sp_);
+    exs.deserialize_cstring(unit.descr_);
+    exs.deserialize<char>(&unit.mode_);
+  }
+
+  test_device2::test_device2(void* mem)
+  {
+
+
+  }
+
+  void test_device2::serialize()
+  {
+    std::cout << "serialize2\n";
+  }
+
+  void test_device2::deserialize(void* block)
+  {
   }
 
 
-
-  void test_device1::serialize(const data& unit)
+  void test_device2::serialize(void* mem)
   {
-    is->sign_block(device_id_.c_str());
-    is->serialize<int>(unit.x_);
-    is->serialize<int>(unit.y_);
-    is->serialize<float>(unit.val_);
-    is->serialize<double>(unit.sp_);
-    is->serialize_cstring(unit.descr_.c_str());
-    is->serialize<char>(unit.mode_);
-    is->finalize_block();
+    std::cout << "serialize2\n";
+    data& unit = *(static_cast<data*>(mem));
+    // ins->sign_block(device_id_.c_str());
+    ins->serialize<int>(unit.x_);
+    ins->serialize<double>(unit.temp_);
+    ins->serialize_cstring(unit.descr_.c_str());
+    ins->finalize_block();
   }
 
-  void test_device1::deserialize(void* mem, data& unit)
+  void test_device2::deserialize(void* block, void* mem)
   {
-    serializer os(static_cast<char*>(mem));
-  }
-
-
-
-  void test_device2::serialize(const data& unit)
-  {
-    is->sign_block(device_id_.c_str());
-    
-    is->finalize_block();
-  }
-
-  void test_device2::deserialize(void* mem, data& unit)
-  {
-    serializer os(static_cast<char*>(mem));
+    data& unit = *(static_cast<data*>(mem));
+    serializer exs(static_cast<char*>(block));
+    exs.deserialize<int>(&unit.x_);
+    exs.deserialize<double>(&unit.temp_);
+    exs.deserialize_cstring(unit.descr_);
   }
 
 }
+/**************************************************************************/
+
