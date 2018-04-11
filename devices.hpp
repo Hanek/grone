@@ -18,14 +18,15 @@ namespace tmdb
     public:
       static serializer* ins;
       std::string device_id_;
-      device() {}
+      device(const char* id): device_id_(id) {}
       virtual ~device() {}
 
+      virtual void* get_data()               = 0;
+      virtual void print_data()              = 0;
       virtual void serialize()               = 0;
       virtual void deserialize(void*)        = 0;
       virtual void serialize(void*)          = 0;
       virtual void deserialize(void*, void*) = 0;
-
   };
 
   /************************* user's classes ****************************/
@@ -44,10 +45,12 @@ namespace tmdb
        data(): x_(0), y_(0), val_(0), sp_(0), mode_(0) {}
      };
 
-     data data_unit;
-     test_device1() {}
-     test_device1(void*);
+     data data_unit_;
+     test_device1(const char* id): device(id) {}
+     test_device1(const char*, void*);
      
+     void* get_data() { return &data_unit_; }
+     void print_data();
      void serialize();
      void deserialize(void*);
      void serialize(void*);
@@ -66,10 +69,12 @@ namespace tmdb
         data(): x_(0), temp_(0) {}
       };
 
-      data data_unit;
-      test_device2() {}
-      test_device2(void*);
+      data data_unit_;
+      test_device2(const char* id): device(id) {}
+      test_device2(const char*, void*);
 
+      void* get_data() { return &data_unit_; }
+      void print_data();
       void serialize();
       void deserialize(void*);
       void serialize(void*);
@@ -83,21 +88,21 @@ namespace tmdb
   class device_factory
   {
     public:
-      device* create(const std::string& device_id)
+      device* create(const char* device_id)
       {
         std::map<std::string,pCreate>::iterator it;
-        it = mapCreate_.find(device_id);
+        it = mapCreate_.find(std::string(device_id));
         if(it != mapCreate_.end())
-        { return it->second(); }
+        { return it->second(device_id); }
         return 0;
       }
 
-      device* create2(const std::string& device_id, void* data)
+      device* create2(const char* device_id, void* data)
       {
         std::map<std::string,pCreate2>::iterator it;
-        it = mapCreate2_.find(device_id);
+        it = mapCreate2_.find(std::string(device_id));
         if(it != mapCreate2_.end())
-        { return it->second(data); }
+        { return it->second(device_id, data); }
         return 0;
       }
 
@@ -112,18 +117,18 @@ namespace tmdb
 
     private:
       template <typename T>
-        static device* instantiate()
-        { return new T; }
+        static device* instantiate(const char* id)
+        { return new T(id); }
       
       template <typename T>
-        static device* instantiate2(void* val)
-        { return new T(val); }
+        static device* instantiate2(const char* id,void* val)
+        { return new T(id, val); }
 
 
     private:
-      typedef device* (*pCreate)();
+      typedef device* (*pCreate)(const char*);
       std::map<std::string,pCreate> mapCreate_;
-      typedef device* (*pCreate2)(void*);
+      typedef device* (*pCreate2)(const char*, void*);
       std::map<std::string,pCreate2> mapCreate2_;
   };
 }

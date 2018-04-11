@@ -3,7 +3,6 @@
 #include "serializer.hpp"
 
 
-
 namespace tmdb
 {
   bool core::instance_ = false;
@@ -19,7 +18,6 @@ namespace tmdb
     for(bm_cit_ cit = bmap_.begin(); cit != bmap_.end(); cit++)
     {
       free(cit->second);
-      std::cout << cit->first << std::endl;
     }
  
   }
@@ -74,35 +72,25 @@ namespace tmdb
     }
   }
   
-  void core::dm_walk()
+  void core::dm_walk(tmdb::device_factory& f)
   {
-    char buf[256] = {0};
+    tmdb::device* pDev = 0;   
     std::cout << "==================== dm_walk ====================\n";
+    
     for(dm_cit_ cit = dmap_.begin(); cit != dmap_.end(); cit++)
     {
+      /* device_id */
+      std::cout << "device_id: " << cit->first << std::endl;
+      pDev = f.create(cit->first.c_str());
       std::vector<std::pair<void*,time> >:: const_iterator vit;
-      std::cout << cit->first << std::endl;
       for(vit = cit->second.begin(); vit != cit->second.end(); vit++)
       {
-        /* callback to device serialization routine */
-        int a;
-        char c = 0;
-        float f;
+        std::cout << "time: " << vit->second << "\t";
         /* use as external buffer */
-        serializer s((char*)vit->first);
-        memset(buf, 0x00, sizeof(buf));
-
-        s.deserialize<int>(&a);
-        s.deserialize<char>(&c);
-        s.deserialize_cstring(buf);
-        s.deserialize<float>(&f);
-
-        std::cout << "\t" << vit->second 
-                  << " : " << a 
-                  << " : " << c 
-                  << " : " << buf 
-                  << " : " << f << std::endl;
+        pDev->deserialize(vit->first);
+        pDev->print_data();
       }
+      delete pDev;
     }
   }
   
