@@ -233,7 +233,7 @@ void tmdb_test()
   
   
   
-  c.cacheIt(is);
+  c.cacheIt();
   
   is.sign_block("first device");
   is.serialize<int>(40962);
@@ -257,7 +257,7 @@ void tmdb_test()
   is.finalize_block();
   
   
-  c.cacheIt(is);
+  c.cacheIt();
   
   c.bm_walk();  
   //c.dm_walk();
@@ -308,7 +308,7 @@ void devices_test1()
     delete pDev;
   }
 
-  c.cacheIt(*pDev->ins);
+  c.cacheIt();
   
   
   for(int i = 0; i < 3; i++)
@@ -321,7 +321,7 @@ void devices_test1()
     delete pDev;
   }
 
-  c.cacheIt(*pDev->ins);
+  c.cacheIt();
   
   for(int i = 0; i < 3; i++)
   {
@@ -333,23 +333,10 @@ void devices_test1()
     delete pDev;
   }
 
-  c.cacheIt(*pDev->ins);
-  
-  
-  for(int i = 0; i < 3; i++)
-  {
-    pDev = f.create("device2");
-    /* serialize when data is availble, no copying here */
-    fill_device2(d2_unit);
-    pDev->serialize(&d2_unit);
-    counter++;
-    delete pDev;
-  }
-
-  c.cacheIt(*pDev->ins);
+  c.cacheIt();
   
   //  c.bm_walk();  
-  c.dm_walk(f);
+  //c.dm_walk(f);
 }
 
 
@@ -361,16 +348,12 @@ void devices_test2()
   tmdb::test_device2::data d2_unit;
   tmdb::test_device1 td1();
   
-  tmdb::device_factory f;
-  f.register_device<tmdb::test_device1>("device1");
-  f.register_device<tmdb::test_device2>("device2");
-
   tmdb::device_factory f2;
-  f2.register_device2<tmdb::test_device1>("device1");
-  f2.register_device2<tmdb::test_device2>("device2");
+  f2.register_device_sync<tmdb::test_device1>("device1");
+  f2.register_device_sync<tmdb::test_device2>("device2");
 
-  tmdb::device* pDev = f2.create2("device1", &d1_unit);
-  pDev->serialize();
+  tmdb::device* pDev = f2.create_sync("device1", &d1_unit);
+  pDev->serialize_sync();
   delete pDev;
 
   for(int i = 0; i < 2; i++)
@@ -378,18 +361,53 @@ void devices_test2()
     d2_unit.x_ = i;
     d2_unit.temp_ = i/10000;
     d2_unit.descr_ = std::string("device2 description");
-    pDev = f2.create2("device2", &d2_unit);
+    pDev = f2.create_sync("device2", &d2_unit);
     /* serialize can be done at any time, device owns the data */
-    pDev->serialize();
+    pDev->serialize_sync();
     delete pDev;
   }
 
-  c.cacheIt(*pDev->ins);
+  c.cacheIt();
 
+  c.bm_walk();  
+  //c.dm_walk(f);
 
-  for(int i = 0; i < 2; i++)
+}
+
+void core_factory_test()
+{
+  tmdb::core c;
+  tmdb::test_device1::data d1_unit;
+  tmdb::test_device2::data d2_unit;
+
+  tmdb::device* pDev = 0;
+
+  for(int i = 0; i < 3; i++)
   {
-    pDev = f.create("device1");
+    pDev = c.factory_->create("device1");
+    /* serialize when data is availble, no copying here */
+    fill_device1(d1_unit);
+    pDev->serialize(&d1_unit);
+    counter++;
+    delete pDev;
+  }
+  c.cacheIt();
+  
+  for(int i = 0; i < 3; i++)
+  {
+    pDev = c.factory_->create("device2");
+    /* serialize when data is availble, no copying here */
+    fill_device2(d2_unit);
+    pDev->serialize(&d2_unit);
+    counter++;
+    delete pDev;
+  }
+
+  c.cacheIt();
+
+  for(int i = 0; i < 3; i++)
+  {
+    pDev = c.factory_->create("device1");
     /* serialize when data is availble, no copying here */
     fill_device1(d1_unit);
     pDev->serialize(&d1_unit);
@@ -397,18 +415,34 @@ void devices_test2()
     delete pDev;
   }
 
-  c.cacheIt(*pDev->ins);
+  c.cacheIt();
+
+  for(int i = 0; i < 3; i++)
+  {
+    pDev = c.factory_->create("device2");
+    /* serialize when data is availble, no copying here */
+    fill_device2(d2_unit);
+    pDev->serialize(&d2_unit);
+    counter++;
+    delete pDev;
+  }
+
+  c.cacheIt();
+
 
   c.bm_walk();  
-  c.dm_walk(f);
+  c.dm_walk();
 
 }
+
 int main()
 {
   //   linear_serializer_test();
   //   linear_std_stream_test(4000000);  
   // tmdb_test();
+  // devices_test1();
 
-  devices_test1();
+  core_factory_test();
+
   return 0;
 }

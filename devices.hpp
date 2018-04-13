@@ -23,8 +23,8 @@ namespace tmdb
 
       virtual void* get_data()               = 0;
       virtual void print_data()              = 0;
-      virtual void serialize()               = 0;
-      virtual void deserialize(void*)        = 0;
+      virtual void serialize_sync()          = 0;
+      virtual void deserialize_sync(void*)   = 0;
       virtual void serialize(void*)          = 0;
       virtual void deserialize(void*, void*) = 0;
   };
@@ -51,8 +51,8 @@ namespace tmdb
      
      void* get_data() { return &data_unit_; }
      void print_data();
-     void serialize();
-     void deserialize(void*);
+     void serialize_sync();
+     void deserialize_sync(void*);
      void serialize(void*);
      void deserialize(void*, void*);
   };
@@ -75,8 +75,8 @@ namespace tmdb
 
       void* get_data() { return &data_unit_; }
       void print_data();
-      void serialize();
-      void deserialize(void*);
+      void serialize_sync();
+      void deserialize_sync(void*);
       void serialize(void*);
       void deserialize(void*, void*);
   };
@@ -88,6 +88,7 @@ namespace tmdb
   class device_factory
   {
     public:
+      /* create empty device, supply data later.. */
       device* create(const char* device_id)
       {
         std::map<std::string,pCreate>::iterator it;
@@ -97,11 +98,12 @@ namespace tmdb
         return 0;
       }
 
-      device* create2(const char* device_id, void* data)
+      /* create device with data */
+      device* create_sync(const char* device_id, void* data)
       {
-        std::map<std::string,pCreate2>::iterator it;
-        it = mapCreate2_.find(std::string(device_id));
-        if(it != mapCreate2_.end())
+        std::map<std::string,pCreate_sync>::iterator it;
+        it = mapCreate_sync_.find(std::string(device_id));
+        if(it != mapCreate_sync_.end())
         { return it->second(device_id, data); }
         return 0;
       }
@@ -111,8 +113,8 @@ namespace tmdb
         { mapCreate_[device_id] = &instantiate<T>; }
 
       template <typename T>
-        void register_device2(const char* device_id)
-        { mapCreate2_[device_id] = &instantiate2<T>; }
+        void register_device_sync(const char* device_id)
+        { mapCreate_sync_[device_id] = &instantiate_sync<T>; }
 
 
     private:
@@ -121,15 +123,15 @@ namespace tmdb
         { return new T(id); }
       
       template <typename T>
-        static device* instantiate2(const char* id,void* val)
+        static device* instantiate_sync(const char* id,void* val)
         { return new T(id, val); }
 
 
     private:
       typedef device* (*pCreate)(const char*);
       std::map<std::string,pCreate> mapCreate_;
-      typedef device* (*pCreate2)(const char*, void*);
-      std::map<std::string,pCreate2> mapCreate2_;
+      typedef device* (*pCreate_sync)(const char*, void*);
+      std::map<std::string,pCreate_sync> mapCreate_sync_;
   };
 }
 #endif

@@ -54,7 +54,8 @@ private:
   int    message_len_;
   /* dynamically allocated buffer */
   char*  buf_;
-    
+  char*  buf_copy_;
+
   /* current position */
   char*  pos_;
   /* begininng of current block */
@@ -90,7 +91,14 @@ public:
   
   /* copy data to serializer */
   void update_buffer(void* bufin, size_t sizein);
+  
+  /* paired, used by cacheIt exclusivly 
+   * - realloc to fit data to message_len_, returns pointer to old buffer
+   * - detaching allows buffer reuse and avoid extra allocs
+   */
+  void shrink_to_fit();
   void* detach_buffer();
+  
   /* allocate memory and copy */
   void* copy_buffer();
   void clear();

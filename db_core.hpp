@@ -5,7 +5,6 @@
 #include <fstream>
 #include <map>
 #include <vector>
-#include "devices.hpp"
 
 #ifndef _DB_CORE_H
 #define _DB_CORE_H
@@ -55,16 +54,17 @@ namespace tmdb
 {
   class time;
   class serializer;
-  
+  class device_factory;
   
   class core 
   {
   public:
     core();
     ~core();
-    void cacheIt(serializer& s);
+    void cacheIt();
     void bm_walk();
-    void dm_walk(device_factory& f);
+    void dm_walk();
+    device_factory* factory_;  
   private:
     static bool instance_;
     /* bare map, holds chunks of memory detached from serializer */

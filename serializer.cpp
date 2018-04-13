@@ -70,17 +70,28 @@ void serializer::update_buffer(void* bufin, size_t sizein)
     message_len_ = (int)sizein;
   }
 
-/* return internal buffer, create a new one, allocation */
+
+/* paired with detach_buffer, allocation */
+void serializer::shrink_to_fit()
+{
+  void* mem = malloc(size_);
+  if(!mem)
+  {
+    malloc_failed_stderr(__func__, errno);
+  }
+
+  memcpy(mem, buf_, size_);
+  buf_copy_ = buf_;
+  buf_ = (char*)mem;
+}
+
+/* return internal buffer, take a copy made with shrink_to_fit, no allocation */
 void* serializer::detach_buffer()
  {
     void* mem = (void*)buf_;
-    
-    buf_ = (char*)malloc(size_);
-    if(!mem)
-    {
-      malloc_failed_stderr(__func__, errno);
-      return NULL;
-    }
+    buf_ = buf_copy_;
+    buf_copy_ = NULL;
+    std::cout << __PRETTY_FUNCTION__ << ": message_len_: " << message_len_ << std::endl; 
   
     clear();
     
@@ -88,19 +99,19 @@ void* serializer::detach_buffer()
   }
  
 
-/* copy internal buffer into new memory chunk, allocation */
+/* copy buffer of message_len_ into new memory chunk, allocation */
 void* serializer::copy_buffer()
+{
+  void* mem = malloc(message_len_);
+  if(!mem)
   {
-    void* mem = malloc(size_);
-    if(!mem)
-    {
-      malloc_failed_stderr(__func__, errno);
-      return NULL;
-    }
-    memcpy(mem, buf_, size_);
-    
-    return mem;
+    malloc_failed_stderr(__func__, errno);
+    return NULL;
   }
+  memcpy(mem, buf_, message_len_);
+
+  return mem;
+}
 
 void serializer::clear()
   {

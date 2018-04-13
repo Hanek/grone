@@ -4,7 +4,7 @@
 
 namespace tmdb
 {
-  serializer*  device::ins = new serializer(33);
+  serializer*  device::ins = new serializer(1024);
 
   test_device1::test_device1(const char* id, void* mem): device(id)
   {
@@ -24,9 +24,9 @@ namespace tmdb
 
   }
 
-  void test_device1::serialize()
+  void test_device1::serialize_sync()
   {
-    std::cout << "serialize1 from copy\n";
+    std::cout << __PRETTY_FUNCTION__ << std::endl; 
     ins->sign_block(device_id_.c_str());
     ins->serialize<int>(data_unit_.x_);
     ins->serialize<int>(data_unit_.y_);
@@ -37,8 +37,9 @@ namespace tmdb
     ins->finalize_block();
   }
 
-  void test_device1::deserialize(void* block)
+  void test_device1::deserialize_sync(void* block)
   {
+    std::cout << __PRETTY_FUNCTION__ << std::endl; 
     serializer exs(static_cast<char*>(block));
     exs.deserialize<int>(&data_unit_.x_);
     exs.deserialize<int>(&data_unit_.y_);
@@ -50,7 +51,7 @@ namespace tmdb
 
   void test_device1::serialize(void* mem)
   {
-    std::cout << "serialize1 no copy\n";
+    std::cout << __PRETTY_FUNCTION__ << std::endl; 
     data& unit = *(static_cast<data*>(mem));
     ins->sign_block(device_id_.c_str());
     ins->serialize<int>(unit.x_);
@@ -65,6 +66,7 @@ namespace tmdb
 
   void test_device1::deserialize(void* block, void* mem)
   {
+    std::cout << __PRETTY_FUNCTION__ << std::endl; 
     data& unit = *(static_cast<data*>(mem));
     serializer exs(static_cast<char*>(block));
     exs.deserialize<int>(&unit.x_);
@@ -90,9 +92,9 @@ namespace tmdb
   }
 
 
-  void test_device2::serialize()
+  void test_device2::serialize_sync()
   {
-    std::cout << "serialize2 from copy\n";
+    std::cout << __PRETTY_FUNCTION__ << std::endl; 
     ins->sign_block(device_id_.c_str());
     ins->serialize<int>(data_unit_.x_);
     ins->serialize<double>(data_unit_.temp_);
@@ -100,8 +102,9 @@ namespace tmdb
     ins->finalize_block();
  }
 
-  void test_device2::deserialize(void* block)
+  void test_device2::deserialize_sync(void* block)
   {
+    std::cout << __PRETTY_FUNCTION__ << std::endl; 
     serializer exs(static_cast<char*>(block));
     exs.deserialize<int>(&data_unit_.x_);
     exs.deserialize<double>(&data_unit_.temp_);
@@ -111,7 +114,7 @@ namespace tmdb
 
   void test_device2::serialize(void* mem)
   {
-    std::cout << "serialize2 no copy\n";
+    std::cout << __PRETTY_FUNCTION__ << std::endl; 
     data& unit = *(static_cast<data*>(mem));
     ins->sign_block(device_id_.c_str());
     ins->serialize<int>(unit.x_);
@@ -122,6 +125,7 @@ namespace tmdb
 
   void test_device2::deserialize(void* block, void* mem)
   {
+    std::cout << __PRETTY_FUNCTION__ << std::endl; 
     data& unit = *(static_cast<data*>(mem));
     serializer exs(static_cast<char*>(block));
     exs.deserialize<int>(&unit.x_);

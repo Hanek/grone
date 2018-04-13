@@ -1,7 +1,7 @@
 #include "db_core.hpp"
 #include "time.hpp"
 #include "serializer.hpp"
-
+#include "devices.hpp"
 
 namespace tmdb
 {
@@ -11,6 +11,11 @@ namespace tmdb
   
   core::core()
   {
+    /* create empty factory */
+    factory_ = new device_factory();
+    /* register devices */
+    factory_->register_device<test_device1>("device1");
+    factory_->register_device<test_device2>("device2");
   }
   
   core::~core()
@@ -22,16 +27,19 @@ namespace tmdb
  
   }
   
-  void core::cacheIt(serializer& s)
+  void core::cacheIt() 
   {
     time t;
     get_time(t);
     char str[4096] = {0};
     
-    s.reset();
-   
+    serializer* s = device::ins;
+    /* called before detach */
+    s->shrink_to_fit();
+    s->reset();
+
     /* get_block() return pointer to block and copy device_id to str */ 
-    for(void* block = s.get_block(str); block; block = s.get_block(str))
+    for(void* block = s->get_block(str); block; block = s->get_block(str))
     {
       /* device_id of current block */
       std::string device_id(str);
@@ -56,7 +64,7 @@ namespace tmdb
       
     
     /* detach and insert into bare map */
-    void* buf = s.detach_buffer();
+    void* buf = s->detach_buffer();
     bmap_[t] = buf;
     
     
@@ -72,7 +80,7 @@ namespace tmdb
     }
   }
   
-  void core::dm_walk(tmdb::device_factory& f)
+  void core::dm_walk()
   {
     tmdb::device* pDev = 0;   
     std::cout << "==================== dm_walk ====================\n";
@@ -81,13 +89,13 @@ namespace tmdb
     {
       /* device_id */
       std::cout << "device_id: " << cit->first << std::endl;
-      pDev = f.create(cit->first.c_str());
+      pDev = factory_->create(cit->first.c_str());
       std::vector<std::pair<void*,time> >:: const_iterator vit;
       for(vit = cit->second.begin(); vit != cit->second.end(); vit++)
       {
         std::cout << "time: " << vit->second << "\t";
         /* use as external buffer */
-        pDev->deserialize(vit->first);
+        pDev->deserialize_sync(vit->first);
         pDev->print_data();
       }
       delete pDev;
