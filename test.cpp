@@ -415,7 +415,7 @@ void core_factory_test()
     delete pDev;
   }
 
-  c.cacheIt();
+//  c.cacheIt();
 
   for(int i = 0; i < 3; i++)
   {
@@ -430,19 +430,52 @@ void core_factory_test()
   c.cacheIt();
 
 
-  c.bm_walk();  
+  //c.bm_walk();  
+  //c.dm_walk();
+  //c.fetch_device_data(std::string("device1"));
   c.dm_walk();
+  c.uncacheIt();
+  c.dm_walk();
+}
+
+
+  void get_block_test()
+{
+  tmdb::core c;
+  tmdb::test_device2::data d2_unit;
+
+  tmdb::device* pDev = 0;
+
+  pDev = c.factory_->create("device2");
+  /* serialize when data is availble, no copying here */
+  //fill_device2(d2_unit);
+  pDev->serialize(&d2_unit);
+  delete pDev;
+
+  tmdb::device::ins->dump();
+  c.cacheIt();
+
+  c.uncacheIt();
 
 }
 
+
+
+/* TODO
+ * - c++ style casting
+ * - code generator
+ * - time representation/management
+ * - performance testing
+ */
 int main()
 {
   //   linear_serializer_test();
   //   linear_std_stream_test(4000000);  
   // tmdb_test();
   // devices_test1();
-
   core_factory_test();
+
+  // get_block_test();
 
   return 0;
 }

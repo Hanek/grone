@@ -82,6 +82,7 @@ private:
 public:
   serializer(size_t size);  
   serializer(char* buf);
+  serializer(char* buf, int len);
   ~serializer() { if(!external_){ free(buf_); } }
   bool empty() { return (0 == size_) ? 1 : 0; }
   size_t get_size() { return size_; }
@@ -108,7 +109,7 @@ public:
   /* called when device serialization is done */
   void finalize_block();
   /* 
-   * read block into id and set pointer on data,
+   * read block into id and set pointer to data,
    * must be followed by deserialize() methods
    */
   bool read_block(char* id);

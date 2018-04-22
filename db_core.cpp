@@ -6,7 +6,7 @@
 namespace tmdb
 {
   bool core::instance_ = false;
-  std::map<time,void*> core::bmap_;
+  std::map<time,std::pair<void*,int> > core::bmap_;
   std::map<std::string,std::vector<std::pair<void*,time> > >core::dmap_;
   
   core::core()
@@ -22,7 +22,7 @@ namespace tmdb
   {
     for(bm_cit_ cit = bmap_.begin(); cit != bmap_.end(); cit++)
     {
-      free(cit->second);
+      free(cit->second.first);
     }
  
   }
@@ -34,7 +34,9 @@ namespace tmdb
     char str[4096] = {0};
     
     serializer* s = device::ins;
-    /* called before detach */
+    /* called prior to detach, so we detaching exactly the same 
+     * amount of bytes that we have serialized..
+     */
     s->shrink_to_fit();
     s->reset();
 
@@ -45,7 +47,7 @@ namespace tmdb
       std::string device_id(str);
       memset(str, 0x00, 4096);
       std::cout << device_id << std::endl;
-     /* block is a pointer to device data */
+     /* block 1is a pointer to device data */
       std::pair<void*,time> device = std::make_pair(block, t);
       
       dm_it_ it = dmap_.find(device_id);
@@ -64,13 +66,45 @@ namespace tmdb
       
     
     /* detach and insert into bare map */
+    int buffer_len = s->length();
     void* buf = s->detach_buffer();
-    bmap_[t] = buf;
-    
-    
+    bmap_[t] = std::make_pair(buf, buffer_len);
   }
-  
-  
+
+  void core::uncacheIt()
+  {
+    char str[4096] = {0};
+
+    for(bm_rit_ rit = bmap_.rbegin(); rit != bmap_.rend(); rit++)
+    {
+      std::cout << __PRETTY_FUNCTION__ << ":time: " <<  rit->first << std::endl;
+      /* parse memory and remove corresponding devices in dmap_ */
+      serializer s(static_cast<char*>(rit->second.first), rit->second.second);
+      for(void* block = s.get_block(str); block; block = s.get_block(str))
+      {
+        /* device_id of current block */
+        std::string device_id(str);
+        memset(str, 0x00, 4096);
+
+        dm_it_ it = dmap_.find(device_id);
+        if(it != dmap_.end())
+        { 
+          std::cout << device_id << " is found" << std::endl;
+          it->second.pop_back();
+          if(it->second.empty())
+          {
+            std::cout << "empty..." << std::endl;
+          }
+        }
+        else
+        {}
+      }
+    }
+
+    std::cout << "---------------------------\n";
+  }
+
+
   void core::bm_walk()
   {
     std::cout << "==================== bm_walk ====================\n"; 
@@ -78,7 +112,8 @@ namespace tmdb
     {
       std::cout << cit->first << std::endl;
     }
-  }
+    std::cout << "================= bm_walk_end ===================\n"; 
+  }  
   
   void core::dm_walk()
   {
@@ -100,7 +135,31 @@ namespace tmdb
       }
       delete pDev;
     }
+    std::cout << "================== dm_walk_end ==================\n"; 
   }
-  
-  
+
+  void core::fetch_device_data(const std::string& device_id)
+  {
+    tmdb::device* pDev = 0;
+    pDev = factory_->create(device_id.c_str());
+    dm_cit_ cit = dmap_.find(device_id);
+    if(!pDev || dmap_.end() == cit)
+    {
+      std::cout << "no device found: " << device_id << std::endl;
+      return;
+    }
+
+    std::vector<std::pair<void*,time> >:: const_iterator vit;
+    for(vit = cit->second.begin(); vit != cit->second.end(); vit++)
+    {
+      std::cout << "time: " << vit->second << "\t";
+      /* use as external buffer */
+      pDev->deserialize_sync(vit->first);
+      pDev->print_data();
+    }
+    delete pDev;
+
+  }
+
+
 }

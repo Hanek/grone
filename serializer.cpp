@@ -19,6 +19,7 @@ serializer::serializer(size_t size): size_(size), hlen_(0), external_(false)
   }
 
 
+/* used for deserializing external buffers */
 serializer::serializer(char* buf): size_(32), hlen_(0), external_(true)
   {  
     buf_  = buf;
@@ -27,6 +28,18 @@ serializer::serializer(char* buf): size_(32), hlen_(0), external_(true)
     beg_         = buf_;
     block_len_   = 0;
   }
+
+
+serializer::serializer(char* buf, int len): size_(len), hlen_(0), external_(true)
+  { 
+    std::cout << len << std::endl; 
+    buf_  = buf;
+    message_len_ = len;
+    pos_         = buf_ + hlen_; 
+    beg_         = buf_;
+    block_len_   = 0;
+  }
+
 
 
 bool serializer::out_of_mem()
@@ -157,12 +170,13 @@ void serializer::clear()
     message_len_ += (pos_ - beg_);
     memcpy(beg_ + hlen_, &block_len_, sizeof(block_len_));
     beg_ = pos_;
+    std::cout << __PRETTY_FUNCTION__ << ": " << block_len_ << ":" << message_len_ << std::endl;
   }
   
   
   
   /* 
-   * read block into id and set pointer on data,
+   * read block into id and set pointer to data,
    * must be followed by deserialize() methods, no allocation
    */
   bool serializer::read_block(char* id)
@@ -188,9 +202,14 @@ void serializer::clear()
   {    
     strcpy(id, pos_);
     hlen_ = strlen(id);
-    
+
     while(pos_ - buf_ + hlen_ + sizeof(hlen_) >= size_)
-    { out_of_mem(); }
+    { /* TODO unit test */
+      if(!external_) 
+      { out_of_mem(); } 
+      else
+      { return NULL; }
+    }
     
      
     if(message_len_ <= pos_ - buf_)
