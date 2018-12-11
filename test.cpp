@@ -462,8 +462,9 @@ void core_factory_test()
 
 
 /* TODO
- * - c++ style casting
+ * - c++ 14
  * - code generator
+ * - logging
  * - time representation/management
  * - performance testing
  */

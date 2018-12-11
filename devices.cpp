@@ -8,7 +8,7 @@ namespace tmdb
 
   test_device1::test_device1(const char* id, void* mem): device(id)
   {
-
+      if(mem){}
 
   }
 
@@ -79,7 +79,7 @@ namespace tmdb
 
   test_device2::test_device2(const char* id, void* mem): device(id)
   {
-
+    if(mem){}
 
   }
 

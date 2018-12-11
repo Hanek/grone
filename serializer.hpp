@@ -22,9 +22,6 @@
 namespace tmdb
 {
 
-/* TODO failed malloc handling  */
-/* TODO c++ alloc/casting */
-
 /*
  * - no easy way to handle multiple devices
  * - each would require callbacks
@@ -77,13 +74,13 @@ private:
   bool out_of_mem();
  
   
-  void malloc_failed_stderr(const char* func, int err);
+  void alloc_failed_stderr(const char* func, int err);
    
 public:
   serializer(size_t size);  
   serializer(char* buf);
   serializer(char* buf, int len);
-  ~serializer() { if(!external_){ free(buf_); } }
+  ~serializer() { if(!external_){ delete[] buf_; } }
   bool empty() { return (0 == size_) ? 1 : 0; }
   size_t get_size() { return size_; }
   size_t length() { return message_len_; }
@@ -120,13 +117,15 @@ public:
   
   void serialize_cstring(const char* str) 
   {
+   /* empty cstring coded as "NULL" */  
     if(!str) 
     {
-      if(4 >= size_ - (pos_ - buf_) - 1)
+      size_t  nlen = strlen("NULL");
+      if(nlen >= size_ - (pos_ - buf_) - 1)
       { out_of_mem(); }
       
-      memcpy(pos_, "NULL", 4); 
-      pos_ += 4; 
+      memcpy(pos_, "NULL", nlen); 
+      pos_ += nlen; 
       *pos_ = 0x00; 
       pos_ += 1;
       return;

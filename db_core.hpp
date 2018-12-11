@@ -27,7 +27,7 @@
  *  
  * 
  * - cache is a key-value in-memory storage, 
- *   whith time as keys and block as values 
+ *   with time as keys and block as values 
  * 
  * - id is user-generated metric linked to data  
  * - len is data length in bytes

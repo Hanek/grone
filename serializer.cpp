@@ -5,10 +5,10 @@ namespace tmdb
 
 serializer::serializer(size_t size): size_(size), hlen_(0), external_(false)
   {  
-    buf_  = (char*)malloc(size_);
+    buf_  = new(std::nothrow)char[size_];
     if(!buf_)
     { 
-      malloc_failed_stderr(__func__, errno);
+      alloc_failed_stderr(__func__, errno);
       return;
     }
     memset(buf_, 0x00, size_);
@@ -49,15 +49,15 @@ bool serializer::out_of_mem()
     size_t shift1 = pos_ - buf_;
     size_t shift2 = beg_ - buf_;
     char* buf_new;
-    buf_new = (char*)malloc(size_);
+    buf_new = new(std::nothrow)char[size_];
     if(!buf_new)
     {
-      malloc_failed_stderr(__func__, errno);
+      alloc_failed_stderr(__func__, errno);
       return false;
     }
     memset(buf_new, 0x00, size_);
     memcpy(buf_new, buf_, size_/2);
-    free(buf_);
+    delete[] buf_;
     buf_ = buf_new;
     pos_ = buf_ + shift1;
     beg_ = buf_ + shift2;
@@ -67,10 +67,10 @@ bool serializer::out_of_mem()
   }
  
 
-void serializer::malloc_failed_stderr(const char* func, int err)
+void serializer::alloc_failed_stderr(const char* func, int err)
   {
-    char buf[128] = {0};
-    sprintf(buf, "[%s] malloc failed: %s\n", func, strerror(err)); 
+    char buf[1024] = {0};
+    sprintf(buf, "[%s] buffer allocation failed: %s\n", func, strerror(err)); 
     fwrite(buf, 1, strlen(buf), stderr);
   }
 
@@ -87,21 +87,21 @@ void serializer::update_buffer(void* bufin, size_t sizein)
 /* paired with detach_buffer, allocation */
 void serializer::shrink_to_fit()
 {
-  void* mem = malloc(size_);
+  void* mem = new(std::nothrow)char[size_];
   if(!mem)
   {
-    malloc_failed_stderr(__func__, errno);
+    alloc_failed_stderr(__func__, errno);
   }
 
   memcpy(mem, buf_, size_);
   buf_copy_ = buf_;
-  buf_ = (char*)mem;
+  buf_ = static_cast<char*>(mem);
 }
 
 /* return internal buffer, take a copy made with shrink_to_fit, no allocation */
 void* serializer::detach_buffer()
  {
-    void* mem = (void*)buf_;
+    void* mem = static_cast<void*>(buf_);
     buf_ = buf_copy_;
     buf_copy_ = NULL;
     std::cout << __PRETTY_FUNCTION__ << ": message_len_: " << message_len_ << std::endl; 
@@ -115,10 +115,10 @@ void* serializer::detach_buffer()
 /* copy buffer of message_len_ into new memory chunk, allocation */
 void* serializer::copy_buffer()
 {
-  void* mem = malloc(message_len_);
+  void* mem = new(std::nothrow)char[message_len_];
   if(!mem)
   {
-    malloc_failed_stderr(__func__, errno);
+    alloc_failed_stderr(__func__, errno);
     return NULL;
   }
   memcpy(mem, buf_, message_len_);
