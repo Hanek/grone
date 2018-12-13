@@ -8,7 +8,6 @@
 #include <vector>
 #include <glib.h>
 
-#include "time.hpp"
 #include "db_core.hpp"
 #include "serializer.hpp"
 #include "devices.hpp"

@@ -49,7 +49,6 @@
 
 
 
-
 namespace tmdb
 {
   class time;
@@ -74,12 +73,6 @@ namespace tmdb
     /* device map, holds pointers to device data */ 
     static std::map<std::string,std::vector<std::pair<void*,time> > > dmap_;
   };
-  
-  typedef std::map<time,std::pair<void*,int> >::const_iterator bm_cit_;
-  typedef std::map<time,std::pair<void*,int> >::reverse_iterator bm_rit_;
-  typedef std::map<time,std::pair<void*,int> >::iterator bm_it_;
-  typedef std::map<std::string,std::vector<std::pair<void*,time> > >::const_iterator dm_cit_;
-  typedef std::map<std::string,std::vector<std::pair<void*,time> > >::iterator dm_it_;
 }
 
 

@@ -199,7 +199,8 @@ void serializer::clear()
   
   /* iterate over dev_id, no allocation */
   void* serializer::get_block(char* id)
-  {    
+  {
+    /* don't know dev_id length in runtime */
     strcpy(id, pos_);
     hlen_ = strlen(id);
 
@@ -211,10 +212,11 @@ void serializer::clear()
       { return NULL; }
     }
     
-     
+    
     if(message_len_ <= pos_ - buf_)
     { return NULL; }
-        
+     
+    /* advance current position */
     memcpy(&block_len_, beg_ + hlen_ + 1, sizeof(block_len_));
     pos_ = beg_ + hlen_ + sizeof(hlen_) + 1 + block_len_;
     beg_ += block_len_ + hlen_ + sizeof(block_len_) + 1; 

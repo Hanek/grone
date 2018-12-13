@@ -13,7 +13,7 @@ OBJECTS = $(SOURCES:%.cpp=%.o)
 
 CXX = g++ -std=c++14
 
-INCLUDES = -I /usr/local/include
+INCLUDES = -I/usr/local/include -I/usr/include
 
 CXXFLAGS = -Wall -Wextra ${INCLUDES} `pkg-config --cflags glib-2.0` 
 

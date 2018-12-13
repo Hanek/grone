@@ -20,7 +20,7 @@ namespace tmdb
   
   core::~core()
   {
-    for(bm_cit_ cit = bmap_.begin(); cit != bmap_.end(); cit++)
+    for(auto cit = bmap_.begin(); cit != bmap_.end(); cit++)
     {
       free(cit->second.first);
     }
@@ -50,7 +50,7 @@ namespace tmdb
      /* block 1is a pointer to device data */
       std::pair<void*,time> device = std::make_pair(block, t);
       
-      dm_it_ it = dmap_.find(device_id);
+      auto it = dmap_.find(device_id);
       if(it != dmap_.end())
       {/* update exsisting, by pushing we always keep data series in order */
         it->second.push_back(device);
@@ -75,7 +75,7 @@ namespace tmdb
   {
     char str[4096] = {0};
 
-    for(bm_rit_ rit = bmap_.rbegin(); rit != bmap_.rend(); rit++)
+    for(auto rit = bmap_.rbegin(); rit != bmap_.rend(); rit++)
     {
       std::cout << __PRETTY_FUNCTION__ << ":time: " <<  rit->first << std::endl;
       /* parse memory and remove corresponding devices in dmap_ */
@@ -86,7 +86,7 @@ namespace tmdb
         std::string device_id(str);
         memset(str, 0x00, 4096);
 
-        dm_it_ it = dmap_.find(device_id);
+        auto it = dmap_.find(device_id);
         if(it != dmap_.end())
         { 
           std::cout << device_id << " is found" << std::endl;
@@ -108,7 +108,7 @@ namespace tmdb
   void core::bm_walk()
   {
     std::cout << "==================== bm_walk ====================\n"; 
-    for(bm_cit_ cit = bmap_.begin(); cit != bmap_.end(); cit++)
+    for(auto cit = bmap_.begin(); cit != bmap_.end(); cit++)
     {
       std::cout << cit->first << std::endl;
     }
@@ -120,7 +120,7 @@ namespace tmdb
     tmdb::device* pDev = 0;   
     std::cout << "==================== dm_walk ====================\n";
     
-    for(dm_cit_ cit = dmap_.begin(); cit != dmap_.end(); cit++)
+    for(auto cit = dmap_.begin(); cit != dmap_.end(); cit++)
     {
       /* device_id */
       std::cout << "device_id: " << cit->first << std::endl;
@@ -142,15 +142,14 @@ namespace tmdb
   {
     tmdb::device* pDev = 0;
     pDev = factory_->create(device_id.c_str());
-    dm_cit_ cit = dmap_.find(device_id);
+    auto cit = dmap_.find(device_id);
     if(!pDev || dmap_.end() == cit)
     {
       std::cout << "no device found: " << device_id << std::endl;
       return;
     }
 
-    std::vector<std::pair<void*,time> >:: const_iterator vit;
-    for(vit = cit->second.begin(); vit != cit->second.end(); vit++)
+    for(auto vit = cit->second.begin(); vit != cit->second.end(); vit++)
     {
       std::cout << "time: " << vit->second << "\t";
       /* use as external buffer */
