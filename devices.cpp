@@ -76,7 +76,11 @@ namespace tmdb
     exs.deserialize_cstring(unit.descr_);
     exs.deserialize<char>(&unit.mode_);
   }
-
+  
+  
+  /**************************************************************************/
+  
+  
   test_device2::test_device2(const char* id, void* mem): device(id)
   {
     if(mem){}
@@ -130,6 +134,57 @@ namespace tmdb
     serializer exs(static_cast<char*>(block));
     exs.deserialize<int>(&unit.x_);
     exs.deserialize<double>(&unit.temp_);
+    exs.deserialize_cstring(unit.descr_);
+  }
+
+
+/**************************************************************************/
+
+
+  test_device3::test_device3(const char* id, void* mem): device(id)
+  {
+      std::cout << __PRETTY_FUNCTION__ << std::endl; 
+    if(mem){}
+
+  }
+
+  void test_device3::print_data()
+  {
+    std::cout << device_id_ << " : "
+      << data_unit_.descr_ << std::endl;
+  }
+
+
+  void test_device3::serialize_sync()
+  {
+    std::cout << __PRETTY_FUNCTION__ << std::endl; 
+    ins->sign_block(device_id_.c_str());
+    ins->serialize(data_unit_.descr_);
+    ins->finalize_block();
+ }
+
+  void test_device3::deserialize_sync(void* block)
+  {
+    std::cout << __PRETTY_FUNCTION__ << std::endl; 
+    serializer exs(static_cast<char*>(block));
+    exs.deserialize_cstring(data_unit_.descr_);
+  }
+
+
+  void test_device3::serialize(void* mem)
+  {
+    std::cout << __PRETTY_FUNCTION__ << std::endl;
+    data& unit = *(static_cast<data*>(mem));
+    ins->sign_block(device_id_.c_str());
+    ins->serialize(unit.descr_);
+    ins->finalize_block();
+  }
+
+  void test_device3::deserialize(void* block, void* mem)
+  {
+    std::cout << __PRETTY_FUNCTION__ << std::endl; 
+    data& unit = *(static_cast<data*>(mem));
+    serializer exs(static_cast<char*>(block));
     exs.deserialize_cstring(unit.descr_);
   }
 

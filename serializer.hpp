@@ -12,8 +12,9 @@
 #include <iostream>
 #include <map>
 #include <vector>
-
+#include <typeinfo>
 #include <fstream>
+#include  <plog/Log.h>
 
 #ifndef _SERIALIZER_H
 #define _SERIALIZER_H  
@@ -72,9 +73,6 @@ private:
   std::map<std::string, std::vector<std::string> > device_map_;
 
   bool out_of_mem();
- 
-  
-  void alloc_failed_stderr(const char* func, int err);
    
 public:
   serializer(size_t size);  
@@ -90,7 +88,8 @@ public:
   /* copy data to serializer */
   void update_buffer(void* bufin, size_t sizein);
   
-  /* paired, used by cacheIt exclusivly 
+  /* 
+   * paired, used by cacheIt exclusivly 
    * - realloc to fit data to message_len_, returns pointer to old buffer
    * - detaching allows buffer reuse and avoid extra allocs
    */
@@ -141,10 +140,17 @@ public:
   }
   
   
+  /* TODO allow plain POD type only */
   template <class T> void serialize(T var) 
   {
-    if(sizeof(T) >= size_ - (pos_ - buf_))
+    if(sizeof(T) >= size_ - (pos_ - buf_) - 1)
     { out_of_mem(); }
+    
+    /* std::string neeeds special care */
+    if(typeid(std::string) == typeid(T))
+    {
+      LOG_NONE << "sizeof T: " << sizeof(T);
+    }
     
     memcpy(pos_, &var, sizeof(T)); 
     pos_ += sizeof(T);

@@ -457,23 +457,47 @@ void core_factory_test()
   c.uncacheIt();
 
 }
+  
+  void test_device3()
+{
+  tmdb::core c;
+  c.factory_->register_device<tmdb::test_device3>("device3");
+  tmdb::test_device3::data d3_unit;
 
+  tmdb::device* pDev = 0;
+
+  pDev = c.factory_->create("device3");
+  d3_unit.descr_ = std::string("device3 description");
+  /* serialize when data is availble, no copying here */
+  pDev->serialize(&d3_unit);
+  delete pDev;
+
+  c.cacheIt();
+  c.uncacheIt();
+}
 
 
 /* TODO
  * - c++ 14
  * - code generator
- * - logging
  * - time representation/management
  * - performance testing
  */
 int main()
 {
+  plog::init(plog::none, "tmdb.log");
+  LOG_NONE << "---------------------- tmdb start ----------------------";
+  
+  
+//  get_block_test();
+  test_device3();
+  
+  
   //   linear_serializer_test();
   //   linear_std_stream_test(4000000);  
   // tmdb_test();
   // devices_test1();
-  core_factory_test();
+  //core_factory_test();
 
   // get_block_test();
 

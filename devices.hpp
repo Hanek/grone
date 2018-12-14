@@ -84,6 +84,28 @@ namespace tmdb
       void serialize(void*);
       void deserialize(void*, void*);
   };
+  
+  struct test_device3: public device
+  {
+    public:
+      struct data
+      {
+        int x_;
+        std::string descr_;
+        data() {}
+      };
+
+      data data_unit_;
+      test_device3(const char* id): device(id) {}
+      test_device3(const char*, void*);
+
+      void* get_data() { return &data_unit_; }
+      void print_data();
+      void serialize_sync();
+      void deserialize_sync(void*);
+      void serialize(void*);
+      void deserialize(void*, void*);
+  };
 
 
   /************************       factory         ***************************/

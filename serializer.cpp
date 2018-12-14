@@ -1,4 +1,5 @@
 #include "serializer.hpp"
+#include  <plog/Log.h>
 
 namespace tmdb
 {
@@ -8,7 +9,7 @@ serializer::serializer(size_t size): size_(size), hlen_(0), external_(false)
     buf_  = new(std::nothrow)char[size_];
     if(!buf_)
     { 
-      alloc_failed_stderr(__func__, errno);
+      LOG_FATAL << "buffer allocation failed: " << strerror(errno);
       return;
     }
     memset(buf_, 0x00, size_);
@@ -18,7 +19,7 @@ serializer::serializer(size_t size): size_(size), hlen_(0), external_(false)
     block_len_   = 0;
   }
 
-
+  
 /* used for deserializing external buffers */
 serializer::serializer(char* buf): size_(32), hlen_(0), external_(true)
   {  
@@ -32,7 +33,7 @@ serializer::serializer(char* buf): size_(32), hlen_(0), external_(true)
 
 serializer::serializer(char* buf, int len): size_(len), hlen_(0), external_(true)
   { 
-    std::cout << len << std::endl; 
+    LOG_DEBUG << "serializer length: " << len;
     buf_  = buf;
     message_len_ = len;
     pos_         = buf_ + hlen_; 
@@ -52,7 +53,7 @@ bool serializer::out_of_mem()
     buf_new = new(std::nothrow)char[size_];
     if(!buf_new)
     {
-      alloc_failed_stderr(__func__, errno);
+      LOG_FATAL << "buffer allocation failed: " << strerror(errno);
       return false;
     }
     memset(buf_new, 0x00, size_);
@@ -62,17 +63,10 @@ bool serializer::out_of_mem()
     pos_ = buf_ + shift1;
     beg_ = buf_ + shift2;
             
-    std::cout << "out_of_mem: " << size_ << std::endl;
+    LOG_DEBUG << "realloc to " << size_ << " bytes";
     return true;
   }
  
-
-void serializer::alloc_failed_stderr(const char* func, int err)
-  {
-    char buf[1024] = {0};
-    sprintf(buf, "[%s] buffer allocation failed: %s\n", func, strerror(err)); 
-    fwrite(buf, 1, strlen(buf), stderr);
-  }
 
 
 void serializer::update_buffer(void* bufin, size_t sizein)
@@ -90,7 +84,8 @@ void serializer::shrink_to_fit()
   void* mem = new(std::nothrow)char[size_];
   if(!mem)
   {
-    alloc_failed_stderr(__func__, errno);
+    LOG_FATAL << "buffer allocation failed: " << strerror(errno);
+    return;
   }
 
   memcpy(mem, buf_, size_);
@@ -104,8 +99,6 @@ void* serializer::detach_buffer()
     void* mem = static_cast<void*>(buf_);
     buf_ = buf_copy_;
     buf_copy_ = NULL;
-    std::cout << __PRETTY_FUNCTION__ << ": message_len_: " << message_len_ << std::endl; 
-  
     clear();
     
     return mem;
@@ -118,7 +111,7 @@ void* serializer::copy_buffer()
   void* mem = new(std::nothrow)char[message_len_];
   if(!mem)
   {
-    alloc_failed_stderr(__func__, errno);
+    LOG_FATAL << "buffer allocation failed: " << strerror(errno);
     return NULL;
   }
   memcpy(mem, buf_, message_len_);
@@ -170,7 +163,6 @@ void serializer::clear()
     message_len_ += (pos_ - beg_);
     memcpy(beg_ + hlen_, &block_len_, sizeof(block_len_));
     beg_ = pos_;
-    std::cout << __PRETTY_FUNCTION__ << ": " << block_len_ << ":" << message_len_ << std::endl;
   }
   
   

@@ -10,7 +10,9 @@ Following soon...
 
 ### Prerequisites
 
-Following soon...
+Logging library
+https://github.com/SergiusTheBest/plog
+
 
 ### Installing
 
