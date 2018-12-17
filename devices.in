@@ -1,0 +1,28 @@
+#
+# device template for automatic device generation
+#
+# - device members must be included inside the block denoted by curly brackets
+# - device name must precede member's block
+# - each device, bracket and data memeber must occupy sinle line
+# - each data member must contain exactly two tokens
+# - generator performs some very basic checks and would fail with meaningfull error
+#
+
+   device_1            
+{  
+  int         x_    
+  int         y_
+  float       val_
+  double      var_
+  std::string descr_
+}
+
+device_2
+{  
+  int         x_
+  int         y_
+  float       val_
+  double      var_
+  std::string descr_
+}
+

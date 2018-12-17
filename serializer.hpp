@@ -145,7 +145,6 @@ public:
   }
   
   
-  /* TODO allow plain POD type only */
   template <class T> void serialize(T var) 
   {
     if(!std::is_trivial<T>::value)
