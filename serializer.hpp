@@ -112,9 +112,14 @@ public:
   /* iterate over dev_id */
   void* get_block(char* id);
   
-  /********** serialization methods **********/
+  /******************** serialization methods ********************/
   
-  void serialize_cstring(const char* str) 
+  void serialize(const std::string& str) 
+  {
+      serialize(str.c_str());
+  }
+  
+  void serialize(const char* str) 
   {
    /* empty cstring coded as "NULL" */  
     if(!str) 
@@ -143,28 +148,28 @@ public:
   /* TODO allow plain POD type only */
   template <class T> void serialize(T var) 
   {
+    if(!std::is_trivial<T>::value)
+    { 
+      LOG_NONE << "skipping non_trivial type: " << typeid(T).name();
+      return;
+    }
+    
     if(sizeof(T) >= size_ - (pos_ - buf_) - 1)
     { out_of_mem(); }
-    
-    /* std::string neeeds special care */
-    if(typeid(std::string) == typeid(T))
-    {
-      LOG_NONE << "sizeof T: " << sizeof(T);
-    }
     
     memcpy(pos_, &var, sizeof(T)); 
     pos_ += sizeof(T);
   }
   
-  /********** deserialization methods **********/
+  /******************** deserialization methods ********************/
   
-  void deserialize_cstring(char* str)
+  void deserialize(char* str)
   {
     memcpy((void*)str, pos_, strlen(pos_)); 
     pos_ += strlen(pos_) + 1;
   }
   
-  void deserialize_cstring(std::string& str)
+  void deserialize(std::string& str)
   {
     str = std::string(pos_);
     pos_ += strlen(pos_) + 1;
@@ -176,7 +181,7 @@ public:
     pos_ += sizeof(T);
   }
   
-  /*********************************************************************/
+  /******************************************************************/
   
   void dump()
   {

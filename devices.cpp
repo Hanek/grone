@@ -32,7 +32,7 @@ namespace tmdb
     ins->serialize<int>(data_unit_.y_);
     ins->serialize<float>(data_unit_.val_);
     ins->serialize<double>(data_unit_.sp_);
-    ins->serialize_cstring(data_unit_.descr_.c_str());
+    ins->serialize(data_unit_.descr_.c_str());
     ins->serialize<char>(data_unit_.mode_);
     ins->finalize_block();
   }
@@ -45,7 +45,7 @@ namespace tmdb
     exs.deserialize<int>(&data_unit_.y_);
     exs.deserialize<float>(&data_unit_.val_);
     exs.deserialize<double>(&data_unit_.sp_);
-    exs.deserialize_cstring(data_unit_.descr_);
+    exs.deserialize(data_unit_.descr_);
     exs.deserialize<char>(&data_unit_.mode_);
   }
 
@@ -58,7 +58,7 @@ namespace tmdb
     ins->serialize<int>(unit.y_);
     ins->serialize<float>(unit.val_);
     ins->serialize<double>(unit.sp_);
-    ins->serialize_cstring(unit.descr_.c_str());
+    ins->serialize(unit.descr_.c_str());
     ins->serialize<char>(unit.mode_);
     ins->finalize_block();
 
@@ -73,7 +73,7 @@ namespace tmdb
     exs.deserialize<int>(&unit.y_);
     exs.deserialize<float>(&unit.val_);
     exs.deserialize<double>(&unit.sp_);
-    exs.deserialize_cstring(unit.descr_);
+    exs.deserialize(unit.descr_);
     exs.deserialize<char>(&unit.mode_);
   }
   
@@ -102,7 +102,7 @@ namespace tmdb
     ins->sign_block(device_id_.c_str());
     ins->serialize<int>(data_unit_.x_);
     ins->serialize<double>(data_unit_.temp_);
-    ins->serialize_cstring(data_unit_.descr_.c_str());
+    ins->serialize(data_unit_.descr_.c_str());
     ins->finalize_block();
  }
 
@@ -112,7 +112,7 @@ namespace tmdb
     serializer exs(static_cast<char*>(block));
     exs.deserialize<int>(&data_unit_.x_);
     exs.deserialize<double>(&data_unit_.temp_);
-    exs.deserialize_cstring(data_unit_.descr_);
+    exs.deserialize(data_unit_.descr_);
   }
 
 
@@ -123,7 +123,7 @@ namespace tmdb
     ins->sign_block(device_id_.c_str());
     ins->serialize<int>(unit.x_);
     ins->serialize<double>(unit.temp_);
-    ins->serialize_cstring(unit.descr_.c_str());
+    ins->serialize(unit.descr_.c_str());
     ins->finalize_block();
   }
 
@@ -134,7 +134,7 @@ namespace tmdb
     serializer exs(static_cast<char*>(block));
     exs.deserialize<int>(&unit.x_);
     exs.deserialize<double>(&unit.temp_);
-    exs.deserialize_cstring(unit.descr_);
+    exs.deserialize(unit.descr_);
   }
 
 
@@ -167,7 +167,7 @@ namespace tmdb
   {
     std::cout << __PRETTY_FUNCTION__ << std::endl; 
     serializer exs(static_cast<char*>(block));
-    exs.deserialize_cstring(data_unit_.descr_);
+    exs.deserialize(data_unit_.descr_);
   }
 
 
@@ -185,7 +185,7 @@ namespace tmdb
     std::cout << __PRETTY_FUNCTION__ << std::endl; 
     data& unit = *(static_cast<data*>(mem));
     serializer exs(static_cast<char*>(block));
-    exs.deserialize_cstring(unit.descr_);
+    exs.deserialize(unit.descr_);
   }
 
 }

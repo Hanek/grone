@@ -30,7 +30,7 @@ void linear_serializer_test()
     is.sign_block(p);
     is.serialize<int>(4096 + i);
     is.serialize<char>('a' + i);
-    is.serialize_cstring(str);
+    is.serialize(str);
     is.serialize<char>('A' + i);
     is.serialize<float>(f + i);
     is.finalize_block();
@@ -64,7 +64,7 @@ void linear_serializer_test()
     os.read_block(p);
     os.deserialize<int>(&ii);
     os.deserialize<char>(&cc);
-    os.deserialize_cstring(pp);
+    os.deserialize(pp);
     os.deserialize<char>(&c2);
     os.deserialize<float>(&ff);
     
@@ -181,7 +181,7 @@ void serialize_1(std::string& dev_id, int x, int y, float m, std::string& type)
   srl.serialize<int>(x);
   srl.serialize<int>(y);
   srl.serialize<float>(m);
-  srl.serialize_cstring(type.c_str());
+  srl.serialize(type.c_str());
   srl.finalize_block();
 }
 
@@ -192,7 +192,7 @@ void deserialize_1(char* p, int& x, int& y, float& m, std::string& type)
   s.deserialize<int>(&x);
   s.deserialize<int>(&y);
   s.deserialize<float>(&m);
-  s.deserialize_cstring(buf);
+  s.deserialize(buf);
   type = std::string(buf);
 }
 
@@ -212,21 +212,21 @@ void tmdb_test()
   is.sign_block("first device");
   is.serialize<int>(4096);
   is.serialize<char>('a');
-  is.serialize_cstring("some cstring here");
+  is.serialize("some cstring here");
   is.serialize<float>(3.141592);
   is.finalize_block();
   
   is.sign_block("second device variable length");
   is.serialize<int>(1024);
   is.serialize<char>('z');
-  is.serialize_cstring("...");
+  is.serialize("...");
   is.serialize<float>(666.666);
   is.finalize_block();
   
   is.sign_block("first device");
   is.serialize<int>(8096);
   is.serialize<char>('x');
-  is.serialize_cstring("some cstring here");
+  is.serialize("some cstring here");
   is.serialize<float>(3.141592);
   is.finalize_block();
   
@@ -237,21 +237,21 @@ void tmdb_test()
   is.sign_block("first device");
   is.serialize<int>(40962);
   is.serialize<char>('b');
-  is.serialize_cstring("some cstring here");
+  is.serialize("some cstring here");
   is.serialize<float>(3.141592);
   is.finalize_block();
   
   is.sign_block("second device variable length");
   is.serialize<int>(10242);
   is.serialize<char>('y');
-  is.serialize_cstring("...");
+  is.serialize("...");
   is.serialize<float>(666.666);
   is.finalize_block();
   
   is.sign_block("first device");
   is.serialize<int>(80962);
   is.serialize<char>('w');
-  is.serialize_cstring("some cstring here");
+  is.serialize("some cstring here");
   is.serialize<float>(3.141592);
   is.finalize_block();
   
@@ -485,19 +485,19 @@ void core_factory_test()
  */
 int main()
 {
-  plog::init(plog::none, "tmdb.log");
+  plog::init(plog::error, "tmdb.log");
   LOG_NONE << "---------------------- tmdb start ----------------------";
   
   
 //  get_block_test();
-  test_device3();
+//  test_device3();
   
   
   //   linear_serializer_test();
   //   linear_std_stream_test(4000000);  
   // tmdb_test();
   // devices_test1();
-  //core_factory_test();
+  core_factory_test();
 
   // get_block_test();
 
