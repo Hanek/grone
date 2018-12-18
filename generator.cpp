@@ -1,6 +1,8 @@
 #include <iostream>
 #include <sstream>
 #include <iterator>
+#include <fstream>
+
 #include  <plog/Log.h>
 #include "generator.hpp"
 
@@ -33,10 +35,12 @@ void generator::parse()
 {
     bool device        = false;
     bool open_bracket  = false;
+    std::string device_name;
+    generator::data_unit data;
     
     for(auto&& str: device_template_)
     {
-        std::string device_name;
+        
         std::vector<std::string> tokens;
         if(!is_discarded(str))
         {
@@ -65,7 +69,7 @@ void generator::parse()
             open_bracket = true;
             continue;
         }
-        
+          
         
         if(is_closing(str))
         {
@@ -74,9 +78,19 @@ void generator::parse()
                 std::cerr << "invalid closing bracket" << std::endl;
                 return; 
             }
-            /* all done, reset flags */
+            
+            if(end(device_map_) != device_map_.find(device_name))
+            {
+                std::cerr << "device already exists: " << device_name << std::endl;
+                return;
+            }
+            
+            /* all done, clear data, reset flags */
+            device_map_[device_name] = data;
+            data.members_.clear();
             device       = false;
             open_bracket = false;
+            device_name.clear();
             continue;
         }
                
@@ -90,7 +104,8 @@ void generator::parse()
                 std::cerr << "failed to split data member: " << str << std::endl;
                 return;
             }
-            std::make_tuple(tokens.at(0), tokens.at(1));
+            
+            data.members_.push_back(std::make_tuple(tokens.at(0), tokens.at(1)));
             std::cout << tokens.at(0) << " " << tokens.at(1);
         }
         std::cout << std::endl;
@@ -191,6 +206,85 @@ bool generator::is_closing(const std::string& str)
 
 void generator::print_device_map()
 {
+    for(auto&& it : device_map_)
+    {
+        std::cout << it.first << std::endl;
+        for(auto& i : it.second.members_)
+        {
+            std::cout << "\t" << std::get<0>(i) 
+                      << ":"  << std::get<1>(i) << std::endl;
+        }
+    }
+    
+}
+
+std::string new_line(int n)
+{
+    std::string line;
+    for(int i = 0; i < n; i++)
+    {
+        line += "\n";
+    }
+    return line;
+}
+
+
+std::string intend(int n)
+{
+    std::string line;
+    for(int i = 0; i < n; i++)
+    {
+        line += "    ";
+    }
+    return line;
+}
+
+
+
+
+void generator::dump_source()
+{
+    std::ofstream devices;
+    devices.open("devices.cpp.bac");
+    
+    devices << "#include \"devices.hpp\"\n";
+    devices << "#include \"serializer.hpp\"\n";
+    devices << new_line(4);
+    devices << "namespace tmdb\n";
+    devices << "{\n";
+    devices << intend(1) << "serializer* device::ins = new serializer(1024);\n";
+    
+    for(auto&& it : device_map_)
+    {
+        devices << new_line(1);
+        devices << "/**************************************   "
+                << it.first 
+                << "   **************************************/\n";
+        devices << new_line(2);
+        
+        devices << intend(1) << "void " << it.first << "::serialize_sync()\n";
+        devices << intend(1) << "{\n";
+        devices << intend(2) << "ins->sign_block(device_id_.c_str());\n";
+        
+        for(auto& i : it.second.members_)
+        {
+            if(std::string("std::string") == std::get<0>(i))
+            {
+                devices << intend(2) << "ins->serialize"  
+                        << "(data_unit_."<< std::get<1>(i) << ");\n";
+                continue;
+            }
+            
+            devices << intend(2) << "ins->serialize<" << std::get<0>(i) 
+                    << ">(data_unit_."<< std::get<1>(i) << ");\n";
+        }
+        devices << intend(2) << "ins->finalize_block();\n";
+        devices << intend(1) << "}\n";
+    }
+    
+    
+    
+    devices.close();
     
 }
 
@@ -200,6 +294,8 @@ int main()
 {
     generator gen("devices.in");
     gen.parse();
+    gen.print_device_map();
+    gen.dump_source();
     
     return 0;
 }

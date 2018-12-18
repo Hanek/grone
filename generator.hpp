@@ -2,7 +2,6 @@
 #include <cstdlib>
 #include <cerrno>
 #include <iostream>
-#include <fstream>
 #include <vector>
 #include <tuple>
 #include <map>
@@ -15,8 +14,13 @@ class generator
 private:
     /* row device template as read from file */
     std::vector<std::string> device_template_;
+    class data_unit
+    {
+    public:
+        std::vector<std::tuple<std::string,std::string> > members_;
+    };
     /* processed device container */
-    std::map<std::string,std::tuple<std::string,std::string> > device_map_; 
+    std::map<std::string,data_unit> device_map_; 
     
     bool is_discarded(const std::string& str);
     bool is_device(const std::string& str, std::string& device_name);
@@ -26,6 +30,8 @@ private:
 public:
     generator(std::string devices);
     void print_device_map();
+    void dump_header();
+    void dump_source();
     void parse();
 
 
