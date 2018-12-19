@@ -218,7 +218,7 @@ void generator::print_device_map()
     
 }
 
-std::string new_line(int n)
+std::string newline(int n)
 {
     std::string line;
     for(int i = 0; i < n; i++)
@@ -249,18 +249,20 @@ void generator::dump_source()
     
     devices << "#include \"devices.hpp\"\n";
     devices << "#include \"serializer.hpp\"\n";
-    devices << new_line(4);
+    devices << newline(4);
     devices << "namespace tmdb\n";
     devices << "{\n";
     devices << intend(1) << "serializer* device::ins = new serializer(1024);\n";
     
     for(auto&& it : device_map_)
     {
-        devices << new_line(1);
+        devices << newline(1) << intend(1);
         devices << "/**************************************   "
                 << it.first 
                 << "   **************************************/\n";
-        devices << new_line(2);
+        devices << newline(2);
+        
+        /*****************    serialize_sync   *****************/
         
         devices << intend(1) << "void " << it.first << "::serialize_sync()\n";
         devices << intend(1) << "{\n";
@@ -280,12 +282,78 @@ void generator::dump_source()
         }
         devices << intend(2) << "ins->finalize_block();\n";
         devices << intend(1) << "}\n";
+        devices << newline(1);
+        
+        /****************   deserialize_sync   ****************/
+        
+        devices << intend(1) << "void " << it.first << "::deserialize_sync(void* block)\n";
+        devices << intend(1) << "{\n";
+        devices << intend(2) << "serializer exs(static_cast<char*>(block));\n";
+        
+        for(auto& i : it.second.members_)
+        {
+            if(std::string("std::string") == std::get<0>(i))
+            {
+                devices << intend(2) << "exs->deserialize"  
+                        << "(data_unit_."<< std::get<1>(i) << ");\n";
+                continue;
+            }
+            
+            devices << intend(2) << "exs->deserialize<" << std::get<0>(i) 
+                    << ">(data_unit_."<< std::get<1>(i) << ");\n";
+        }
+        devices << intend(1) << "}\n";
+        devices << newline(1);
+        
+        /*****************    serialize   *****************/
+        
+        devices << intend(1) << "void " << it.first << "::serialize(void* mem)\n";
+        devices << intend(1) << "{\n";
+        devices << intend(2) << "data& unit = *(static_cast<data*>(mem));\n";
+        devices << intend(2) << "ins->sign_block(device_id_.c_str());\n";
+        
+        for(auto& i : it.second.members_)
+        {
+            if(std::string("std::string") == std::get<0>(i))
+            {
+                devices << intend(2) << "ins->serialize"  
+                        << "(data_unit_."<< std::get<1>(i) << ");\n";
+                continue;
+            }
+            
+            devices << intend(2) << "ins->serialize<" << std::get<0>(i) 
+                    << ">(data_unit_."<< std::get<1>(i) << ");\n";
+        }
+        devices << intend(2) << "ins->finalize_block();\n";
+        devices << intend(1) << "}\n";
+        devices << newline(1);
+        
+        /****************   deserialize   ****************/
+        
+        devices << intend(1) << "void " << it.first << "::deserialize(void* block, void* mem)\n";
+        devices << intend(1) << "{\n";
+        devices << intend(2) << "data& unit = *(static_cast<data*>(mem));\n";
+        devices << intend(2) << "serializer exs(static_cast<char*>(block));\n";
+        
+        for(auto& i : it.second.members_)
+        {
+            if(std::string("std::string") == std::get<0>(i))
+            {
+                devices << intend(2) << "exs->deserialize"  
+                        << "(data_unit_."<< std::get<1>(i) << ");\n";
+                continue;
+            }
+            
+            devices << intend(2) << "exs->deserialize<" << std::get<0>(i) 
+                    << ">(data_unit_."<< std::get<1>(i) << ");\n";
+        }
+        devices << intend(1) << "}\n";
+        devices << newline(1);
+        
     }
     
-    
-    
+    devices << "}\n";
     devices.close();
-    
 }
 
 
