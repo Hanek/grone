@@ -8,21 +8,26 @@
 # - generator performs some very basic checks and would fail with meaningfull error
 #
 
-   device_1            
-{  
-  int         x_    
-  int         y_
-  float       val_
-  double      var_
-  std::string descr_
-}
-
-device_2
-{  
+test_device1            
+{
   int         x_
   int         y_
   float       val_
-  double      var_
+  double      sp_
+  std::string descr_
+  char        mode_
+}
+
+test_device2
+{
+ int    x_
+ double temp_  
+}
+
+device_3
+{  
+  int x_
   std::string descr_
 }
+
 

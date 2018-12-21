@@ -242,10 +242,10 @@ std::string intend(int n)
 
 
 
-void generator::dump_source()
+void generator::dump_source(const std::string& str)
 {
     std::ofstream devices;
-    devices.open("devices.cpp.bac");
+    devices.open(str);
     
     devices << "#include \"devices.hpp\"\n";
     devices << "#include \"serializer.hpp\"\n";
@@ -357,13 +357,149 @@ void generator::dump_source()
 }
 
 
+void generator::dump_header(const std::string& str)
+{
+    std::ofstream devices;
+    devices.open(str);
+
+    devices << "#include <cstring>\n";
+    devices << "#include <cstdlib>\n";
+    devices << "#include <cerrno>\n";
+    devices << "#include <iostream>\n";
+    devices << "#include <fstream>\n";
+    devices << "#include <string.h>\n";
+    devices << "#include <map>\n";
+    devices << newline(1);
+    devices << "#ifndef _DEVICES_H\n";
+    devices << "#define _DEVICES_H\n";
+    devices << newline(1);
+    devices << "namespace tmdb\n";
+    devices << "{\n";
+    devices << intend(1) << "class serializer;\n";
+    devices << newline(1);
+    devices << intend(1) << "class device\n";
+    devices << intend(1) << "{\n";
+    devices << intend(1) << "public:\n";
+    devices << intend(2) << "static serializer* ins;\n";
+    devices << intend(2) << "std::string device_id_;\n";
+    devices << intend(2) << "device(const char* id): device_id_(id) {}\n";
+    devices << intend(2) << "virtual ~device() {}\n";
+    devices << newline(1);
+    devices << intend(2) << "virtual void* get_data()               = 0;\n";
+    devices << intend(2) << "virtual void print_data()              = 0;\n";
+    devices << intend(2) << "virtual void serialize_sync()          = 0;\n";
+    devices << intend(2) << "virtual void deserialize_sync(void*)   = 0;\n";
+    devices << intend(2) << "virtual void serialize(void*)          = 0;\n";
+    devices << intend(2) << "virtual void deserialize(void*, void*) = 0;\n";
+    devices << intend(1) << "};\n";
+
+    for(auto&& it : device_map_)
+    {
+        devices << newline(1);
+        devices << intend(1) << "/************************************   ";
+        devices << it.first;
+        devices << "   ************************************/\n";
+        devices << newline(1);
+        devices << intend(1) << "class " << it.first << ": public device\n";
+        devices << intend(1) << "{\n";
+        devices << intend(1) << "public:\n";
+        devices << intend(2) << "struct data\n";
+        devices << intend(2) << "{\n";
+        
+        std::string ctor = "data(): "; 
+        for(auto& i : it.second.members_)
+        {
+            devices << intend(3) << std::get<0>(i) << " " << std::get<1>(i) << ";\n";
+            if(std::string("std::string") != std::get<0>(i))
+            {
+                ctor += std::get<1>(i);
+                ctor += "(0), ";
+            }
+        }
+        ctor.pop_back();
+        ctor.pop_back();
+        ctor += " {}\n";
+        devices << intend(3) << ctor;
+        devices << intend(2) << "};";
+        devices << newline(1);
+        devices << intend(2) << "data data_unit_;\n";
+        devices << intend(2) << "test_device1(const char* id): device(id) {}\n";
+        devices << intend(2) << "test_device1(const char*, void*);\n";
+        devices << newline(1);
+        devices << intend(2) << "void* get_data() { return &data_unit_; }\n";
+        devices << intend(2) << "void print_data();\n";
+        devices << intend(2) << "void serialize_sync();\n";
+        devices << intend(2) << "void deserialize_sync(void*);\n";
+        devices << intend(2) << "void serialize(void*);\n";
+        devices << intend(2) << "void deserialize(void*, void*);\n";
+        devices << intend(1) << "};\n";
+    }
+
+    devices << newline(1);
+    devices << "/************************************   ";
+    devices << "factory";
+    devices << "   ************************************/\n";
+    devices << newline(1);
+    devices << newline(1);
+    devices << intend(1) << "class device_factory\n";
+    devices << intend(1) << "{\n";
+    devices << intend(1) << "public:\n";
+    devices << intend(2) << "/* create empty device, supply data later.. */\n";
+    devices << intend(2) << "device* create(const char* device_id)\n";
+    devices << intend(2) << "{\n";
+    devices << intend(3) << "std::map<std::string,pCreate>::iterator it;\n";
+    devices << intend(3) << "it = mapCreate_.find(std::string(device_id));\n";
+    devices << intend(3) << "if(it != mapCreate_.end())\n";
+    devices << intend(3) << "{ return it->second(device_id); }\n";
+    devices << intend(3) << "return 0;\n";
+    devices << intend(2) << "}\n";
+    devices << newline(1);
+    devices << intend(2) << "/* create device with data */\n";
+    devices << intend(2) << "device* create_sync(const char* device_id, void* data)\n";
+    devices << intend(2) << "{\n";
+    devices << intend(3) << "std::map<std::string,pCreate_sync>::iterator it;\n";
+    devices << intend(3) << "it = mapCreate_sync_.find(std::string(device_id));\n";
+    devices << intend(3) << "if(it != mapCreate_sync_.end())\n";
+    devices << intend(3) << "{ return it->second(device_id, data); }\n";
+    devices << intend(3) << "return 0;\n";
+    devices << intend(2) << "}\n";
+    devices << newline(1);
+    devices << intend(2) << "template <typename T>\n";
+    devices << intend(3) << "void register_device(const char* device_id)\n";
+    devices << intend(3) << "{ mapCreate_[device_id] = &instantiate<T>; }\n";
+    devices << newline(1);
+    devices << intend(2) << "template <typename T>\n";
+    devices << intend(3) << "void register_device_sync(const char* device_id)\n";
+    devices << intend(3) << "{ mapCreate_sync_[device_id] = &instantiate_sync<T>; }\n";
+    devices << newline(2);
+    devices << intend(1) << "private:\n";
+    devices << intend(2) << "template <typename T>\n";
+    devices << intend(3) << "static device* instantiate(const char* id)\n";
+    devices << intend(3) << "{ return new T(id); }\n";
+    devices << newline(1);
+    devices << intend(2) << "template <typename T>\n";
+    devices << intend(3) << "static device* instantiate_sync(const char* id,void* val)\n";
+    devices << intend(3) << "{ return new T(id, val); }\n";
+    devices << newline(2);
+    devices << intend(2) << "typedef device* (*pCreate)(const char*);\n";
+    devices << intend(2) << "std::map<std::string,pCreate> mapCreate_;\n";
+    devices << intend(2) << "typedef device* (*pCreate_sync)(const char*, void*);\n";
+    devices << intend(2) << "std::map<std::string,pCreate_sync> mapCreate_sync_;\n";
+    devices << intend(1) << "};\n";
+    devices << "}\n";
+    devices << "#endif\n";
+}
+
+
+
 
 int main()
 {
     generator gen("devices.in");
     gen.parse();
     gen.print_device_map();
-    gen.dump_source();
+    gen.dump_header("devices.hpp.bac");
+    gen.dump_source("devices.cpp.bac");
     
     return 0;
 }

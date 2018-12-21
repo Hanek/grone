@@ -477,12 +477,15 @@ void core_factory_test()
 }
 
 
-/* TODO
+/* 
+ * TODOs
  * - c++ 14
  * - code generator
  * - time representation/management
  * - performance testing
+ * - device_id length must be limited somehow, serializer read_block and get_block must explicitly know max size  in runtime
  */
+  
 int main()
 {
   plog::init(plog::error, "tmdb.log");

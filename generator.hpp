@@ -30,8 +30,8 @@ private:
 public:
     generator(std::string devices);
     void print_device_map();
-    void dump_header();
-    void dump_source();
+    void dump_header(const std::string& str);
+    void dump_source(const std::string& str);
     void parse();
 
 

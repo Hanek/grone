@@ -17,10 +17,6 @@ namespace tmdb
   {
     public:
       static serializer* ins;
-      /* 
-       * device_id length must be limited somehow, 
-       * serializer read_block and get_block must explicitly know max size  in runtime
-       */
       std::string device_id_;
       device(const char* id): device_id_(id) {}
       virtual ~device() {}
