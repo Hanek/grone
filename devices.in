@@ -20,11 +20,12 @@ test_device1
 
 test_device2
 {
- int    x_
- double temp_  
+  int    x_
+  double temp_  
+  std::string descr_
 }
 
-device_3
+test_device3
 {  
   int x_
   std::string descr_

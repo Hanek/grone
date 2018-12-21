@@ -261,7 +261,23 @@ void generator::dump_source(const std::string& str)
                 << it.first 
                 << "   **************************************/\n";
         devices << newline(2);
+
         
+        /*****************    print_data   *****************/
+        
+        devices << intend(1) << "void " << it.first << "::print_data()\n";
+        devices << intend(1) << "{\n";
+        devices << intend(1) << "std::cout << device_id_ << \" : \"\n";
+        for(auto& i : it.second.members_)
+        {
+            devices << intend(2) << "<< data_unit_." << std::get<1>(i) << " << \" : \"\n";
+        }
+        devices << intend(2) << "<< std::endl;\n";
+        devices << intend(1) << "}\n";
+        devices << intend(1) << newline(1);
+
+    
+
         /*****************    serialize_sync   *****************/
         
         devices << intend(1) << "void " << it.first << "::serialize_sync()\n";
@@ -294,13 +310,13 @@ void generator::dump_source(const std::string& str)
         {
             if(std::string("std::string") == std::get<0>(i))
             {
-                devices << intend(2) << "exs->deserialize"  
+                devices << intend(2) << "exs.deserialize"  
                         << "(data_unit_."<< std::get<1>(i) << ");\n";
                 continue;
             }
             
-            devices << intend(2) << "exs->deserialize<" << std::get<0>(i) 
-                    << ">(data_unit_."<< std::get<1>(i) << ");\n";
+            devices << intend(2) << "exs.deserialize<" << std::get<0>(i) 
+                    << ">(&data_unit_."<< std::get<1>(i) << ");\n";
         }
         devices << intend(1) << "}\n";
         devices << newline(1);
@@ -309,7 +325,7 @@ void generator::dump_source(const std::string& str)
         
         devices << intend(1) << "void " << it.first << "::serialize(void* mem)\n";
         devices << intend(1) << "{\n";
-        devices << intend(2) << "data& unit = *(static_cast<data*>(mem));\n";
+        devices << intend(2) << "data& data_unit = *(static_cast<data*>(mem));\n";
         devices << intend(2) << "ins->sign_block(device_id_.c_str());\n";
         
         for(auto& i : it.second.members_)
@@ -317,12 +333,12 @@ void generator::dump_source(const std::string& str)
             if(std::string("std::string") == std::get<0>(i))
             {
                 devices << intend(2) << "ins->serialize"  
-                        << "(data_unit_."<< std::get<1>(i) << ");\n";
+                        << "(data_unit."<< std::get<1>(i) << ");\n";
                 continue;
             }
             
             devices << intend(2) << "ins->serialize<" << std::get<0>(i) 
-                    << ">(data_unit_."<< std::get<1>(i) << ");\n";
+                    << ">(data_unit."<< std::get<1>(i) << ");\n";
         }
         devices << intend(2) << "ins->finalize_block();\n";
         devices << intend(1) << "}\n";
@@ -332,20 +348,20 @@ void generator::dump_source(const std::string& str)
         
         devices << intend(1) << "void " << it.first << "::deserialize(void* block, void* mem)\n";
         devices << intend(1) << "{\n";
-        devices << intend(2) << "data& unit = *(static_cast<data*>(mem));\n";
+        devices << intend(2) << "data& data_unit = *(static_cast<data*>(mem));\n";
         devices << intend(2) << "serializer exs(static_cast<char*>(block));\n";
         
         for(auto& i : it.second.members_)
         {
             if(std::string("std::string") == std::get<0>(i))
             {
-                devices << intend(2) << "exs->deserialize"  
-                        << "(data_unit_."<< std::get<1>(i) << ");\n";
+                devices << intend(2) << "exs.deserialize"  
+                        << "(data_unit."<< std::get<1>(i) << ");\n";
                 continue;
             }
             
-            devices << intend(2) << "exs->deserialize<" << std::get<0>(i) 
-                    << ">(data_unit_."<< std::get<1>(i) << ");\n";
+            devices << intend(2) << "exs.deserialize<" << std::get<0>(i) 
+                    << ">(&data_unit."<< std::get<1>(i) << ");\n";
         }
         devices << intend(1) << "}\n";
         devices << newline(1);
@@ -423,8 +439,8 @@ void generator::dump_header(const std::string& str)
         devices << intend(2) << "};";
         devices << newline(1);
         devices << intend(2) << "data data_unit_;\n";
-        devices << intend(2) << "test_device1(const char* id): device(id) {}\n";
-        devices << intend(2) << "test_device1(const char*, void*);\n";
+        devices << intend(2) << it.first << "(const char* id): device(id) {}\n";
+        devices << intend(2) << it.first << "(const char* id, void* mem): device(id) { if(mem) {} }\n";
         devices << newline(1);
         devices << intend(2) << "void* get_data() { return &data_unit_; }\n";
         devices << intend(2) << "void print_data();\n";
@@ -436,10 +452,9 @@ void generator::dump_header(const std::string& str)
     }
 
     devices << newline(1);
-    devices << "/************************************   ";
+    devices << intend(1) << "/************************************   ";
     devices << "factory";
     devices << "   ************************************/\n";
-    devices << newline(1);
     devices << newline(1);
     devices << intend(1) << "class device_factory\n";
     devices << intend(1) << "{\n";
@@ -498,8 +513,8 @@ int main()
     generator gen("devices.in");
     gen.parse();
     gen.print_device_map();
-    gen.dump_header("devices.hpp.bac");
-    gen.dump_source("devices.cpp.bac");
+    gen.dump_header("devices.hpp");
+    gen.dump_source("devices.cpp");
     
     return 0;
 }
