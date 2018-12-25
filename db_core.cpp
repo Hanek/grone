@@ -31,7 +31,7 @@ namespace tmdb
   {
     time t;
     get_time(t);
-    char str[4096] = {0};
+    char str[serializer::dev_id_max()] = {0};
     
     serializer* s = device::ins;
     /* called prior to detach, so we detaching exactly the same 
@@ -45,7 +45,7 @@ namespace tmdb
     {
       /* device_id of current block */
       std::string device_id(str);
-      memset(str, 0x00, 4096);
+      memset(str, 0x00, serializer::dev_id_max());
       std::cout << device_id << std::endl;
      /* block 1is a pointer to device data */
       std::pair<void*,time> device = std::make_pair(block, t);
@@ -73,18 +73,18 @@ namespace tmdb
 
   void core::uncacheIt()
   {
-    char str[4096] = {0};
+    char str[serializer::dev_id_max()] = {0};
 
     for(auto rit = bmap_.rbegin(); rit != bmap_.rend(); rit++)
     {
-      std::cout << __PRETTY_FUNCTION__ << ":time: " <<  rit->first << std::endl;
+      std::cout << __PRETTY_FUNCTION__ << ":time: " <<  rit->first.get_date() << std::endl;
       /* parse memory and remove corresponding devices in dmap_ */
       serializer s(static_cast<char*>(rit->second.first), rit->second.second);
       for(void* block = s.get_block(str); block; block = s.get_block(str))
       {
         /* device_id of current block */
         std::string device_id(str);
-        memset(str, 0x00, 4096);
+        memset(str, 0x00, serializer::dev_id_max());
 
         auto it = dmap_.find(device_id);
         if(it != dmap_.end())
@@ -128,7 +128,7 @@ namespace tmdb
       std::vector<std::pair<void*,time> >:: const_iterator vit;
       for(vit = cit->second.begin(); vit != cit->second.end(); vit++)
       {
-        std::cout << "time: " << vit->second << "\t";
+        std::cout << "-time: " << vit->second.get_date() << "\t";
         /* use as external buffer */
         pDev->deserialize_sync(vit->first);
         pDev->print_data();
@@ -151,7 +151,7 @@ namespace tmdb
 
     for(auto vit = cit->second.begin(); vit != cit->second.end(); vit++)
     {
-      std::cout << "time: " << vit->second << "\t";
+      std::cout << "--time: " << vit->second.get_date() << "\t";
       /* use as external buffer */
       pDev->deserialize_sync(vit->first);
       pDev->print_data();

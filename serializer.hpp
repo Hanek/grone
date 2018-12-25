@@ -66,6 +66,9 @@ private:
 
   /* length of dev_id header, calculated as (dev_id) */
   int hlen_;
+  
+  /* max length of dev_id header */  
+  static int dev_id_max_;
 
   /* on if constructed with external buffer */
   bool external_;  
@@ -84,6 +87,7 @@ public:
   size_t length() { return message_len_; }
   size_t get_hlen() { return hlen_; }
   void* get_buffer() { return buf_; }
+  static int dev_id_max() { return dev_id_max_; }
   
   /* copy data to serializer */
   void update_buffer(void* bufin, size_t sizein);

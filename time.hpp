@@ -55,6 +55,7 @@ public:
   struct timespec& get() { return t; }
   const struct timespec& get() const { return t; }
   std::string get_str() const;
+  std::string get_date() const;
   double get_double() const;
   void set(long int sec, long int nsec);
   void reset();

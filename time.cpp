@@ -192,6 +192,24 @@ namespace tmdb
 
     return res;
   }
+  
+  std::string time::get_date() const
+  {
+    size_t len = 32;
+    struct tm t_t;
+    std::string res;
+    char str[len] = {0};
+
+    tzset();
+    if(!localtime_r(&t.tv_sec, &t_t) || 0 == strftime(str, len, "%F %T", &t_t))
+    {
+        return res;
+    }
+     
+    sprintf(str + strlen(str), ".%02ld", t.tv_nsec);
+    res = str;
+    return res;
+}
 
 
   double time::get_double() const

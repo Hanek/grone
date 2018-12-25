@@ -15,8 +15,8 @@
 void linear_serializer_test()
 { 
   int n = 10;
-  char p[4096] = {0};
-  char str[4096];
+  char p[tmdb::serializer::dev_id_max()] = {0};
+  char str[tmdb::serializer::dev_id_max()];
   float f = 3.141592;
       
   tmdb::serializer is(4), os(4);
@@ -28,7 +28,7 @@ void linear_serializer_test()
     sprintf(str, "cstring: #%d", i<<2);
     for(int j = 0; j < i; j++) { strcat(str, "__"); }
     is.sign_block(p);
-    is.serialize<int>(4096 + i);
+    is.serialize<int>(tmdb::serializer::dev_id_max() + i);
     is.serialize<char>('a' + i);
     is.serialize(str);
     is.serialize<char>('A' + i);
@@ -479,9 +479,6 @@ void core_factory_test()
 
 /* 
  * TODOs
- * - c++ 14
- * - code generator
- * - time representation/management
  * - performance testing
  * - device_id length must be limited somehow, serializer read_block and get_block must explicitly know max size  in runtime
  */

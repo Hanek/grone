@@ -3,6 +3,7 @@
 
 namespace tmdb
 {
+int serializer::dev_id_max_ = 4096;
 
 serializer::serializer(size_t size): size_(size), hlen_(0), external_(false)
   {  
