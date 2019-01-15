@@ -66,6 +66,12 @@ namespace tmdb
     void bm_walk();
     void dm_walk();
     device_factory* factory_;  
+
+    /*************** public api ***************/
+    
+    void get(const std::string& device_id, std::string& resp);
+    
+    
   private:
     static bool instance_;
     /* bare map, holds chunks of memory detached from serializer */

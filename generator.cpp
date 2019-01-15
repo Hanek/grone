@@ -247,6 +247,7 @@ void generator::dump_source(const std::string& str)
     std::ofstream devices;
     devices.open(str);
     
+    devices << "/* this file is auto-generated with devgen */\n";
     devices << "#include \"devices.hpp\"\n";
     devices << "#include \"serializer.hpp\"\n";
     devices << newline(4);
@@ -265,14 +266,14 @@ void generator::dump_source(const std::string& str)
         
         /*****************    print_data   *****************/
         
-        devices << intend(1) << "void " << it.first << "::print_data()\n";
+        devices << intend(1) << "void " << it.first << "::print_data(std::ostream& os)\n";
         devices << intend(1) << "{\n";
-        devices << intend(1) << "std::cout << device_id_ << \" : \"\n";
+        devices << intend(1) << "os << device_id_ << \" : \"\n";
         for(auto& i : it.second.members_)
         {
             devices << intend(2) << "<< data_unit_." << std::get<1>(i) << " << \" : \"\n";
         }
-        devices << intend(2) << "<< std::endl;\n";
+        devices << intend(2) << ";\n";
         devices << intend(1) << "}\n";
         devices << intend(1) << newline(1);
 
@@ -377,7 +378,8 @@ void generator::dump_header(const std::string& str)
 {
     std::ofstream devices;
     devices.open(str);
-
+    
+    devices << "/* this file is auto-generated with devgen */\n";
     devices << "#include <cstring>\n";
     devices << "#include <cstdlib>\n";
     devices << "#include <cerrno>\n";
@@ -401,12 +403,12 @@ void generator::dump_header(const std::string& str)
     devices << intend(2) << "device(const char* id): device_id_(id) {}\n";
     devices << intend(2) << "virtual ~device() {}\n";
     devices << newline(1);
-    devices << intend(2) << "virtual void* get_data()               = 0;\n";
-    devices << intend(2) << "virtual void print_data()              = 0;\n";
-    devices << intend(2) << "virtual void serialize_sync()          = 0;\n";
-    devices << intend(2) << "virtual void deserialize_sync(void*)   = 0;\n";
-    devices << intend(2) << "virtual void serialize(void*)          = 0;\n";
-    devices << intend(2) << "virtual void deserialize(void*, void*) = 0;\n";
+    devices << intend(2) << "virtual void* get_data()                                = 0;\n";
+    devices << intend(2) << "virtual void print_data(std::ostream& os = std::cout)   = 0;\n";
+    devices << intend(2) << "virtual void serialize_sync()                           = 0;\n";
+    devices << intend(2) << "virtual void deserialize_sync(void*)                    = 0;\n";
+    devices << intend(2) << "virtual void serialize(void*)                           = 0;\n";
+    devices << intend(2) << "virtual void deserialize(void*, void*)                  = 0;\n";
     devices << intend(1) << "};\n";
 
     for(auto&& it : device_map_)
@@ -443,7 +445,7 @@ void generator::dump_header(const std::string& str)
         devices << intend(2) << it.first << "(const char* id, void* mem): device(id) { if(mem) {} }\n";
         devices << newline(1);
         devices << intend(2) << "void* get_data() { return &data_unit_; }\n";
-        devices << intend(2) << "void print_data();\n";
+        devices << intend(2) << "void print_data(std::ostream& os = std::cout);\n";
         devices << intend(2) << "void serialize_sync();\n";
         devices << intend(2) << "void deserialize_sync(void*);\n";
         devices << intend(2) << "void serialize(void*);\n";

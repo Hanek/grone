@@ -419,7 +419,7 @@ void core_factory_test()
   for(int i = 0; i < 3; i++)
   {
     pDev = c.factory_->create("device2");
-    /* serialize when data is availble, no copying here */
+    /* serialize when data is available, no copying here */
     fill_device2(d2_unit);
     pDev->serialize(&d2_unit);
     counter++;
@@ -427,7 +427,11 @@ void core_factory_test()
   }
 
   c.cacheIt();
-
+  std::string resp;
+  c.get("device1", resp);
+  std::cout << "==== get ====\n";
+  std::cout << resp << std::endl;
+  std::cout << "==============\n";
 
   //c.bm_walk();  
   //c.dm_walk();
@@ -479,6 +483,7 @@ void core_factory_test()
 
 /* 
  * TODOs
+ * - api
  * - performance testing
  * - device_id length must be limited somehow, serializer read_block and get_block must explicitly know max size  in runtime
  */

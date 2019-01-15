@@ -1,3 +1,4 @@
+/* this file is auto-generated with devgen */
 #include <cstring>
 #include <cstdlib>
 #include <cerrno>
@@ -21,12 +22,12 @@ namespace tmdb
         device(const char* id): device_id_(id) {}
         virtual ~device() {}
 
-        virtual void* get_data()               = 0;
-        virtual void print_data()              = 0;
-        virtual void serialize_sync()          = 0;
-        virtual void deserialize_sync(void*)   = 0;
-        virtual void serialize(void*)          = 0;
-        virtual void deserialize(void*, void*) = 0;
+        virtual void* get_data()                                = 0;
+        virtual void print_data(std::ostream& os = std::cout)   = 0;
+        virtual void serialize_sync()                           = 0;
+        virtual void deserialize_sync(void*)                    = 0;
+        virtual void serialize(void*)                           = 0;
+        virtual void deserialize(void*, void*)                  = 0;
     };
 
     /************************************   test_device1   ************************************/
@@ -49,7 +50,7 @@ namespace tmdb
         test_device1(const char* id, void* mem): device(id) { if(mem) {} }
 
         void* get_data() { return &data_unit_; }
-        void print_data();
+        void print_data(std::ostream& os = std::cout);
         void serialize_sync();
         void deserialize_sync(void*);
         void serialize(void*);
@@ -73,7 +74,7 @@ namespace tmdb
         test_device2(const char* id, void* mem): device(id) { if(mem) {} }
 
         void* get_data() { return &data_unit_; }
-        void print_data();
+        void print_data(std::ostream& os = std::cout);
         void serialize_sync();
         void deserialize_sync(void*);
         void serialize(void*);
@@ -96,7 +97,7 @@ namespace tmdb
         test_device3(const char* id, void* mem): device(id) { if(mem) {} }
 
         void* get_data() { return &data_unit_; }
-        void print_data();
+        void print_data(std::ostream& os = std::cout);
         void serialize_sync();
         void deserialize_sync(void*);
         void serialize(void*);

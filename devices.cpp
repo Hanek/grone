@@ -1,3 +1,4 @@
+/* this file is auto-generated with devgen */
 #include "devices.hpp"
 #include "serializer.hpp"
 
@@ -11,16 +12,16 @@ namespace tmdb
     /**************************************   test_device1   **************************************/
 
 
-    void test_device1::print_data()
+    void test_device1::print_data(std::ostream& os)
     {
-    std::cout << device_id_ << " : "
+    os << device_id_ << " : "
         << data_unit_.x_ << " : "
         << data_unit_.y_ << " : "
         << data_unit_.val_ << " : "
         << data_unit_.sp_ << " : "
         << data_unit_.descr_ << " : "
         << data_unit_.mode_ << " : "
-        << std::endl;
+        ;
     }
     
     void test_device1::serialize_sync()
@@ -75,13 +76,13 @@ namespace tmdb
     /**************************************   test_device2   **************************************/
 
 
-    void test_device2::print_data()
+    void test_device2::print_data(std::ostream& os)
     {
-    std::cout << device_id_ << " : "
+    os << device_id_ << " : "
         << data_unit_.x_ << " : "
         << data_unit_.temp_ << " : "
         << data_unit_.descr_ << " : "
-        << std::endl;
+        ;
     }
     
     void test_device2::serialize_sync()
@@ -124,12 +125,12 @@ namespace tmdb
     /**************************************   test_device3   **************************************/
 
 
-    void test_device3::print_data()
+    void test_device3::print_data(std::ostream& os)
     {
-    std::cout << device_id_ << " : "
+    os << device_id_ << " : "
         << data_unit_.x_ << " : "
         << data_unit_.descr_ << " : "
-        << std::endl;
+        ;
     }
     
     void test_device3::serialize_sync()

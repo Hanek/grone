@@ -3,9 +3,9 @@
 #
 # - device members must be included inside the block denoted by curly brackets
 # - device name must precede member's block
-# - each device, bracket and data memeber must occupy sinle line
+# - each device, bracket and data member must occupy single line
 # - each data member must contain exactly two tokens
-# - generator performs some very basic checks and would fail with meaningfull error
+# - generator performs some very basic checks and would fail with meaningful error
 #
 
 test_device1            

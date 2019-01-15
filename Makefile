@@ -6,6 +6,7 @@ SOURCES = \
           time.cpp\
           serializer.cpp\
           db_core.cpp\
+	  db_public.cpp\
           devices.cpp\
           test.cpp
 

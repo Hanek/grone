@@ -132,6 +132,7 @@ namespace tmdb
         /* use as external buffer */
         pDev->deserialize_sync(vit->first);
         pDev->print_data();
+        std::cout << std::endl;
       }
       delete pDev;
     }
@@ -155,6 +156,7 @@ namespace tmdb
       /* use as external buffer */
       pDev->deserialize_sync(vit->first);
       pDev->print_data();
+      std::cout << std::endl;
     }
     delete pDev;
 
