@@ -8,13 +8,20 @@ SOURCES = \
           db_core.cpp\
 	  db_public.cpp\
           devices.cpp\
+          tcp_server.cpp\
           test.cpp
 
 GEN_SOURCES = generator.cpp
 
+CLIENT_SOURCES = \
+          tcp_client.cpp\
+          client.cpp
+
 OBJECTS = $(SOURCES:%.cpp=%.o)
 	
 GEN_OBJECTS = $(GEN_SOURCES:%.cpp=%.o)
+	
+CLIENT_OBJECTS = $(CLIENT_SOURCES:%.cpp=%.o)
 
 CXX = g++ -std=c++14
 
@@ -29,13 +36,16 @@ LDFLAGS = -lm -lrt -lpthread
 %.o: %.cpp
 	$(CXX)  $(PRODUCT_FLAGS) $(CXXFLAGS)  -c -o $@ $<
 
-all: db devgen
+all: db devgen client
 
 db: $(OBJECTS)
 	$(CXX) -o $(BINDIR)$@ $(OBJECTS) $(LDLIBS) $(LDFLAGS)
 
 devgen: $(GEN_OBJECTS)
 	$(CXX) -o $(BINDIR)$@ $(GEN_OBJECTS) $(LDLIBS) $(LDFLAGS)
+	
+client: $(CLIENT_OBJECTS)
+	$(CXX) -o $(BINDIR)$@ $(CLIENT_OBJECTS) $(LDLIBS) $(LDFLAGS)
 
 all:
 	@echo "============================================================================================="; \

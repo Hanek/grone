@@ -427,11 +427,16 @@ void core_factory_test()
   }
 
   c.cacheIt();
-  std::string resp;
-  c.get("device1", resp);
-  std::cout << "==== get ====\n";
-  std::cout << resp << std::endl;
-  std::cout << "==============\n";
+  std::string resp1;
+  c.get("device1", resp1);
+  std::string resp2;
+  c.get("device2", resp2);
+  std::cout << "==== get device1 ====\n";
+  std::cout << resp1 << std::endl;
+  std::cout << "=====================\n";
+  std::cout << "==== get device2 ====\n";
+  std::cout << resp2 << std::endl;
+  std::cout << "=====================\n";
 
   //c.bm_walk();  
   //c.dm_walk();

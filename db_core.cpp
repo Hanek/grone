@@ -34,7 +34,8 @@ namespace tmdb
     char str[serializer::dev_id_max()] = {0};
     
     serializer* s = device::ins;
-    /* called prior to detach, so we detaching exactly the same 
+    /* 
+     * called prior to detach, so we detaching exactly the same 
      * amount of bytes that we have serialized..
      */
     s->shrink_to_fit();
