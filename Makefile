@@ -14,6 +14,7 @@ SOURCES = \
 GEN_SOURCES = generator.cpp
 
 CLIENT_SOURCES = \
+          tcp_server.cpp\
           tcp_client.cpp\
           client.cpp
 

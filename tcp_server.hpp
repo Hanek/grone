@@ -19,15 +19,13 @@ namespace tmdb
     protected:
         static constexpr int is_invalid_ = -1;
 
-        socket(int id);
-
         int get_socket_id() const
         {
             return socket_id_;
         }
     public:
         virtual ~socket();
-
+        socket(int id);
         /* allow move,  no copies */
         socket(socket&& move) noexcept;
         socket& operator = (socket&& move) noexcept;
@@ -37,31 +35,23 @@ namespace tmdb
         void close();
     };
 
-    class transfer: public socket
+    class provider: public socket
     {
     public:
-        transfer(int id): socket(id) {}
+        provider(int id): socket(id) {}
         template<typename F>
         std::size_t message_get(char* buffer, std::size_t size, F scanForEnd = [](std::size_t) { return false; });
         void message_put(char const* buffer, std::size_t size);
         void message_put_close();
     };
     
-    class listen: public socket
+    class listener: public socket
     {
         static constexpr int max_connection_ = 5;
     public:
-        listen(int port);
-        transfer accept();
+        listener(int port);
+        provider accept();
     };
-
-    class connect: public socket
-    {
-    public:
-        connect(std::string const& host, int port);
-    };
-
-
 }
   
 

@@ -11,6 +11,7 @@
 #include "db_core.hpp"
 #include "serializer.hpp"
 #include "devices.hpp"
+#include "tcp_server.hpp"
 
 void linear_serializer_test()
 { 
@@ -484,6 +485,17 @@ void core_factory_test()
   c.cacheIt();
   c.uncacheIt();
 }
+  
+  
+  void tcp_server_test()
+  {
+    tmdb::listener listener(8080);
+    while(true)
+    {
+        tmdb::provider server  = listener.accept();
+    }
+      
+  }
 
 
 /* 
@@ -507,9 +519,13 @@ int main()
   //   linear_std_stream_test(4000000);  
   // tmdb_test();
   // devices_test1();
-  core_factory_test();
+//  core_factory_test();
 
   // get_block_test();
+  
+  
+  tcp_server_test();
+  
 
   return 0;
 }

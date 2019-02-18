@@ -73,119 +73,78 @@ void tmdb::socket::swap(socket& other) noexcept
 
 
 
-
-
-tmdb::connect::connect(std::string const& host, int port): socket(::socket(PF_INET, SOCK_STREAM, 0))
+tmdb::listener::listener(int port): socket(::socket(PF_INET, SOCK_STREAM, 0))
 {
-    struct sockaddr_in server_addr{};
+    struct sockaddr_in server_addr;
+    bzero((char*)&server_addr, sizeof(server_addr));
     server_addr.sin_family       = AF_INET;
     server_addr.sin_port         = htons(port);
-    server_addr.sin_addr.s_addr  = inet_addr(host.c_str());
+    server_addr.sin_addr.s_addr  = INADDR_ANY;
 
-    if (::connect(get_socket_id(), (struct sockaddr*)&server_addr, sizeof(server_addr)) != 0)
+    if(::bind(get_socket_id(), (struct sockaddr *) &server_addr, sizeof(server_addr)) != 0)
     {
         close();
-        LOG_ERROR << __PRETTY_FUNCTION__ << ": connaction failed: " << strerror(errno);
+        LOG_ERROR << __PRETTY_FUNCTION__ << ": bind failed: " << strerror(errno);
         exit(0);
     }
+
+    if(::listen(get_socket_id(), max_connection_) != 0)
+    {
+        close();
+        LOG_ERROR << __PRETTY_FUNCTION__ << ": listen failed: " << strerror(errno);
+        exit(0);
+    }
+    std::cout << "tcp server is running, listening 8080..." << std::endl; 
 }
 
 
-//
-//ServerSocket::ServerSocket(int port)
-//    : BaseSocket(::socket(PF_INET, SOCK_STREAM, 0))
-//{
-//    struct sockaddr_in serverAddr;
-//    bzero((char*)&serverAddr, sizeof(serverAddr));
-//    serverAddr.sin_family       = AF_INET;
-//    serverAddr.sin_port         = htons(port);
-//    serverAddr.sin_addr.s_addr  = INADDR_ANY;
-//
-//    if (::bind(getSocketId(), (struct sockaddr *) &serverAddr, sizeof(serverAddr)) != 0)
-//    {
-//        close();
-//        throw std::runtime_error(buildErrorMessage("ServerSocket::", __func__, ": bind: ", strerror(errno)));
-//    }
-//
-//    if (::listen(getSocketId(), maxConnectionBacklog) != 0)
-//    {
-//        close();
-//        throw std::runtime_error(buildErrorMessage("ServerSocket::", __func__, ": listen: ", strerror(errno)));
-//    }
-//}
-//
-//DataSocket ServerSocket::accept()
-//{
-//    if (getSocketId() == invalidSocketId)
-//    {
-//        throw std::logic_error(buildErrorMessage("ServerSocket::", __func__, ": accept called on a bad socket object (this object was moved)"));
-//    }
-//
-//    struct  sockaddr_storage    serverStorage;
-//    socklen_t                   addr_size   = sizeof serverStorage;
-//    int newSocket = ::accept(getSocketId(), (struct sockaddr*)&serverStorage, &addr_size);
-//    if (newSocket == -1)
-//    {
-//        throw std::runtime_error(buildErrorMessage("ServerSocket:", __func__, ": accept: ", strerror(errno)));
-//    }
-//    return DataSocket(newSocket);
-//}
-//
-//void DataSocket::putMessageData(char const* buffer, std::size_t size)
-//{
-//    std::size_t     dataWritten = 0;
-//
-//    while(dataWritten < size)
-//    {
-//        std::size_t put = write(getSocketId(), buffer + dataWritten, size - dataWritten);
-//        if (put == static_cast<std::size_t>(-1))
-//        {
-//            switch(errno)
-//            {
-//                case EINVAL:
-//                case EBADF:
-//                case ECONNRESET:
-//                case ENXIO:
-//                case EPIPE:
-//                {
-//                    // Fatal error. Programming bug
-//                    throw std::domain_error(buildErrorMessage("DataSocket::", __func__, ": write: critical error: ", strerror(errno)));
-//                }
-//                case EDQUOT:
-//                case EFBIG:
-//                case EIO:
-//                case ENETDOWN:
-//                case ENETUNREACH:
-//                case ENOSPC:
-//                {
-//                    // Resource acquisition failure or device error
-//                    throw std::runtime_error(buildErrorMessage("DataSocket::", __func__, ": write: resource failure: ", strerror(errno)));
-//                }
-//                case EINTR:
-//                        // TODO: Check for user interrupt flags.
-//                        //       Beyond the scope of this project
-//                        //       so continue normal operations.
-//                case EAGAIN:
-//                {
-//                    // Temporary error.
-//                    // Simply retry the read.
-//                    continue;
-//                }
-//                default:
-//                {
-//                    throw std::runtime_error(buildErrorMessage("DataSocket::", __func__, ": write: returned -1: ", strerror(errno)));
-//                }
-//            }
-//        }
-//        dataWritten += put;
-//    }
-//    return;
-//}
-//
-//void DataSocket::putMessageClose()
-//{
-//    if (::shutdown(getSocketId(), SHUT_WR) != 0)
-//    {
-//        throw std::domain_error(buildErrorMessage("HTTPProtocol::", __func__, ": shutdown: critical error: ", strerror(errno)));
-//    }
-//}
+tmdb::provider tmdb::listener::accept()
+{
+    if(get_socket_id() == is_invalid_)
+    {
+        LOG_ERROR << __PRETTY_FUNCTION__ << ": invalid socket id";
+        exit(0);
+    }
+
+    struct  sockaddr_storage    server_data;
+    socklen_t                   addr_size   = sizeof server_data;
+    int socket = ::accept(get_socket_id(), (struct sockaddr*)&server_data, &addr_size);
+    if(-1 == socket)
+    {
+        LOG_ERROR << __PRETTY_FUNCTION__ << ": listen failed: " << strerror(errno);
+        exit(0);
+    }
+    LOG_INFO << __PRETTY_FUNCTION__ << "client accepted: " << get_socket_id();
+    std::cout << "client accepted: " <<  get_socket_id() << std::endl;
+    return provider(socket);
+}
+
+
+void tmdb::provider::message_put(const char* buffer, std::size_t len)
+{
+    std::size_t shift = 0;
+
+    while(shift < len)
+    {
+        std::size_t res = write(get_socket_id(), buffer + shift, len - shift);
+        if(res == static_cast<std::size_t>(-1))
+        {
+            if(errno == EINTR || errno == EAGAIN)
+            { continue; }
+            LOG_ERROR << __PRETTY_FUNCTION__ << ": failed to write to socket: " << strerror(errno);
+            exit(0);
+        }
+        shift += res;
+    }
+    return;
+}
+
+
+void tmdb::provider::message_put_close()
+{
+    if(::shutdown(get_socket_id(), SHUT_WR) != 0)
+    {
+        LOG_ERROR << __PRETTY_FUNCTION__ << ": shutdown error: " << strerror(errno);
+        exit(0);
+    }
+}
