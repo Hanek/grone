@@ -138,106 +138,66 @@ tmdb::provider tmdb::listener::accept()
     std::cout << "client accepted: " <<  get_socket_id() << std::endl;
     return provider(socket);
 }
+ 
 
-
-void tmdb::provider::message_put(const char* buffer, std::size_t len)
+bool tmdb::provider::write(const char* buffer, std::size_t len)
 {
     std::size_t shift = 0;
 
     while(shift < len)
     {
-        std::size_t res = write(get_socket_id(), buffer + shift, len - shift);
+        std::size_t res = ::write(get_socket_id(), buffer + shift, len - shift);
         if(res == static_cast<std::size_t>(-1))
         {
-            if(errno == EINTR || errno == EAGAIN)
+            if(EINTR == errno || EAGAIN == errno)
             { continue; }
             LOG_ERROR << __PRETTY_FUNCTION__ << ": failed to write to socket: " << strerror(errno);
-            exit(0);
+            return false;
         }
         shift += res;
     }
-    return;
+    return true;
+}
+
+bool tmdb::provider::write(const std::string& msg)
+{
+    return write(msg.c_str(), msg.length()); 
 }
 
 
-void tmdb::provider::message_put_close()
+bool tmdb::provider::close()
 {
     if(::shutdown(get_socket_id(), SHUT_WR) != 0)
     {
         LOG_ERROR << __PRETTY_FUNCTION__ << ": shutdown error: " << strerror(errno);
-        exit(0);
+        return false;
     }
+    return true;
 }
 
 
 
-std::size_t tmdb::provider::message_get(char* buffer, std::size_t size)
+bool tmdb::provider::read(char* buffer, std::size_t len)
 {
-    if (get_socket_id() == 0)
+    std::size_t read = 0;
+    while(read < len)
     {
-        LOG_ERROR << __PRETTY_FUNCTION__ << ": invalid socket id";
-    }
-
-    std::size_t     dataRead  = 0;
-    while(dataRead < size)
-    {
-        // The inner loop handles interactions with the socket.
-        std::size_t get = read(get_socket_id(), buffer + dataRead, size - dataRead);
-        if (get == static_cast<std::size_t>(-1))
+        std::size_t res = ::read(get_socket_id(), buffer + read, len - read);
+        if(static_cast<std::size_t>(-1) == res)
         {
-            switch(errno)
-            {
-                case EBADF:
-                case EFAULT:
-                case EINVAL:
-                case ENXIO:
-                {
-                    // Fatal error. Programming bug
-//                    throw std::domain_error(buildErrorMessage("DataSocket::", __func__, ": read: critical error: ", strerror(errno)));
-                }
-                case EIO:
-                case ENOBUFS:
-                case ENOMEM:
-                {
-                   // Resource acquisition failure or device error
-//                    throw std::runtime_error(buildErrorMessage("DataSocket::", __func__, ": read: resource failure: ", strerror(errno)));
-                }
-                case EINTR:
-                    // TODO: Check for user interrupt flags.
-                    //       Beyond the scope of this project
-                    //       so continue normal operations.
-                case ETIMEDOUT:
-                case EAGAIN:
-                {
-                    // Temporary error.
-                    // Simply retry the read.
-                    continue;
-                }
-                case ECONNRESET:
-                case ENOTCONN:
-                {
-                    // Connection broken.
-                    // Return the data we have available and exit
-                    // as if the connection was closed correctly.
-                    get = 0;
-                    break;
-                }
-                default:
-                {
-//                    throw std::runtime_error(buildErrorMessage("DataSocket::", __func__, ": read: returned -1: ", strerror(errno)));
-                }
-            }
+            if(EINTR == errno || EAGAIN == errno || ETIMEDOUT == errno)
+            { continue; }
+            LOG_ERROR << __PRETTY_FUNCTION__ << ": failed to write to socket: " << strerror(errno);
+            return false;
         }
-        if (get == 0)
+        
+        /* end of file */
+        if(0 == res)
         {
             break;
         }
-        dataRead += get;
-//        if (scanForEnd(dataRead))
-//        {
-//            break;
-//        }
+        
+        read += res;
     }
-
-    return dataRead;
+    return true;
 }

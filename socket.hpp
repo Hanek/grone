@@ -15,7 +15,9 @@ namespace tmdb
 
     class socket
     {
+    private:
         int socket_id_;
+        int errno_;
     protected:
         static constexpr int is_invalid_ = -1;
 
@@ -40,9 +42,12 @@ namespace tmdb
     {
     public:
         provider(int id): socket(id) { std::cout << "provider\n"; }
-        std::size_t message_get(char* buffer, std::size_t size);
-        void message_put(char const* buffer, std::size_t size);
-        void message_put_close();
+        bool read(char* buffer, std::size_t size);
+        template <class T> bool read(T* var) { return read((char*)var, sizeof(T)); }
+        bool write(const char* buffer, std::size_t size);
+        bool write(const std::string& msg);
+        template <class T> bool write(T var) { return write((const char*)&var, sizeof(T)); }
+        bool close();
     };
     
     class connector: public provider

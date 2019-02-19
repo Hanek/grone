@@ -494,14 +494,17 @@ void core_factory_test()
     while(true)
     {
         tmdb::provider socket  = listener.accept();
-        tmdb::protocol server(socket);
+        tmdb::protocol server(socket);      
         
+        char type;
         std::string message;
-        server.recvMessage(message);
-        std::cout << message << "\n";
-        server.sendMessage("", "OK");
+        server.recv(message, type);
+        std::cout << "receive: " << message << "\n";
+        
+        server.send("ok", 'b');
+
+        sleep(3);
     }
-      
   }
 
 

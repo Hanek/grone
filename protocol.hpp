@@ -8,26 +8,30 @@
 namespace tmdb
 {
     class provider;
-
-    class proto
+    
+    class request
     {
-    protected:
+    public:
+        char   type_;
+        size_t len_;
+        const  std::string& val_;
+        request(const std::string& msg): val_(msg) {}
+        request(const std::string& msg, char type): type_(type), len_(msg.length()), val_(msg) {}
+    };
+    
+    
+    class protocol
+    {
+    private:
         provider& socket_;
     public:
-        proto(provider& socket): socket_(socket) {} 
-        virtual ~proto() {}
-
-        virtual void sendMessage(std::string const& url, std::string const& message) = 0;
-        virtual void recvMessage(std::string& message) = 0;
+        protocol(provider& socket): socket_(socket) {}
+        bool send(const std::string& message, const char& type);
+        bool send(const request& req);
+        bool recv(std::string& message, char& type);
+        bool recv(request& req);
     };
-
-    class protocol: public proto
-    {
-    public:
-        using proto::proto;
-        void sendMessage(std::string const& url, std::string const& message);
-        void recvMessage(std::string& message);
-    };
+    
 
 }
 

@@ -1,60 +1,46 @@
 #include  <plog/Log.h>
+#include <cstring>
+#include <cstdio>
 #include "protocol.hpp"
 #include "socket.hpp"
 
 
-void tmdb::protocol::sendMessage(std::string const& url, std::string const& message)
+
+
+
+/*
+ * blocking send - receive utilizing type-length-value standard
+ * --------------------------------------
+ * | 1 byte | 4 bytes | variable length |
+ * --------------------------------------
+ * |  type  | length  |     message     |
+ * --------------------------------------
+ */
+
+bool tmdb::protocol::send(const std::string& message, const char& type)
 {
-    socket_.message_put(url.c_str(), url.size());
-    socket_.message_put(message.c_str(), message.size());
-    socket_.message_put_close();
+    const request req(message, type);
+    return send(req);
 }
 
-// Utility class
-// Used by getMessage() to open the string upto capacity size.
-// Then on destruction resize to the actual size of the string.
-class StringSizer
+bool tmdb::protocol::send(const request& req)
 {
-    std::string&    stringData;
-    std::size_t&    currentSize;
-    public:
-        StringSizer(std::string& stringData, std::size_t& currentSize)
-            : stringData(stringData)
-            , currentSize(currentSize)
-        {
-            stringData.resize(stringData.capacity());
-        }
-        ~StringSizer()
-        {
-            stringData.resize(currentSize);
-        }
-        void incrementSize(std::size_t amount)
-        {
-            currentSize += amount;
-        }
-};
+    socket_.write<char>(req.type_);
+    socket_.write<size_t>(req.len_);
+    socket_.write(req.val_);
+    
+    return true;
+}
 
-void tmdb::protocol::recvMessage(std::string& message)
+
+bool tmdb::protocol::recv(std::string& message, char& type)
 {
-    std::size_t dataRead = 0;
-    message.clear();
-
-    while(true)
-    {
-        // This outer loop handles resizing of the message when we run of space in the string.
-        StringSizer        stringSizer(message, dataRead);
-        std::size_t const  dataMax  = message.capacity() - 1;
-        char*              buffer   = &message[0];
-
-        std::size_t got = socket_.message_get(buffer + dataRead, dataMax - dataRead);
-        dataRead    += got;
-        if (got == 0)
-        {
-            break;
-        }
-
-        // Resize the string buffer
-        // So that next time around we can read more data.
-        message.reserve(message.capacity() * 1.5 + 10);
-    }
+    size_t len;
+    char buffer[4096] = {0};
+    socket_.read<char>(&type);
+    socket_.read<size_t>(&len);
+    socket_.read(buffer, len);
+    message = buffer;
+    
+    return true;
 }
