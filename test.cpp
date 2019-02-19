@@ -11,7 +11,8 @@
 #include "db_core.hpp"
 #include "serializer.hpp"
 #include "devices.hpp"
-#include "tcp_server.hpp"
+#include "socket.hpp"
+#include "protocol.hpp"
 
 void linear_serializer_test()
 { 
@@ -492,7 +493,13 @@ void core_factory_test()
     tmdb::listener listener(8080);
     while(true)
     {
-        tmdb::provider server  = listener.accept();
+        tmdb::provider socket  = listener.accept();
+        tmdb::protocol server(socket);
+        
+        std::string message;
+        server.recvMessage(message);
+        std::cout << message << "\n";
+        server.sendMessage("", "OK");
     }
       
   }

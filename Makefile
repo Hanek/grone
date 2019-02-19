@@ -8,14 +8,15 @@ SOURCES = \
           db_core.cpp\
 	  db_public.cpp\
           devices.cpp\
-          tcp_server.cpp\
+          protocol.cpp\
+          socket.cpp\
           test.cpp
 
 GEN_SOURCES = generator.cpp
 
 CLIENT_SOURCES = \
-          tcp_server.cpp\
-          tcp_client.cpp\
+          protocol.cpp\
+          socket.cpp\
           client.cpp
 
 OBJECTS = $(SOURCES:%.cpp=%.o)

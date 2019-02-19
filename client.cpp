@@ -1,7 +1,7 @@
 #include <unistd.h>
 #include "client.hpp"
-#include "tcp_server.hpp"
-#include "tcp_client.hpp"
+#include "socket.hpp"
+#include "protocol.hpp"
 
 
 int main(int argc, char* argv[])
@@ -12,6 +12,7 @@ int main(int argc, char* argv[])
         std::exit(1);
     }
 
-    tmdb::connector client(argv[1], 8080);
+    tmdb::connector socket(argv[1], 8080);
+    tmdb::protocol client(socket);
     sleep(600);
 }
