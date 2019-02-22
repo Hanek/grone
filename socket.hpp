@@ -11,7 +11,7 @@ namespace tmdb
 {
   class time;
   class serializer;
-
+  
 
     class socket
     {
@@ -20,11 +20,6 @@ namespace tmdb
         int errno_;
     protected:
         static constexpr int is_invalid_ = -1;
-
-        int get_socket_id() const
-        {
-            return socket_id_;
-        }
     public:
         virtual ~socket();
         socket(int id);
@@ -34,20 +29,29 @@ namespace tmdb
         void swap(socket& other)           noexcept;
         socket(socket const&)              = delete;
         socket& operator=(socket const&)   = delete;
+        int get_socket_id() const { return socket_id_; }
         void close();
+        
+        
     };
 
 
     class provider: public socket
     {
     public:
-        provider(int id): socket(id) { std::cout << "provider\n"; }
+        enum class state { valid, eof, error, undef };
+        int a;
+        
+        provider(): socket(is_invalid_) { std::cout << "provider empty\n"; }
+        provider(int id): socket(id), a(1) { std::cout << "provider\n"; }
         bool read(char* buffer, std::size_t size);
         template <class T> bool read(T* var) { return read((char*)var, sizeof(T)); }
         bool write(const char* buffer, std::size_t size);
         bool write(const std::string& msg);
         template <class T> bool write(T var) { return write((const char*)&var, sizeof(T)); }
         bool close();
+        
+        
     };
     
     class connector: public provider

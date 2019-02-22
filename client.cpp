@@ -14,7 +14,8 @@ int main(int argc, char* argv[])
 
     tmdb::connector socket(argv[1], 8080);
     tmdb::protocol client(socket);
-    while(true)
+    int i = 0;
+    while(i < 1)
     {
         client.send("hello pizdabolskoe otrod'je..", 'a');
 
@@ -22,6 +23,7 @@ int main(int argc, char* argv[])
         std::string message;
         client.recv(message, type);
         std::cout << "receive: " << message << "\n";
-        sleep(3);
+        sleep(1);
+        i++;
     }
 }

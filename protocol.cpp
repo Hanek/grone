@@ -29,6 +29,12 @@ bool tmdb::protocol::send(const request& req)
     socket_.write<size_t>(req.len_);
     socket_.write(req.val_);
     
+//    if(tmdb::socket::state::undef == socket_.state_)
+//    {
+//        socket_.close();
+//        return false;
+//    }
+    
     return true;
 }
 
@@ -40,6 +46,13 @@ bool tmdb::protocol::recv(std::string& message, char& type)
     socket_.read<char>(&type);
     socket_.read<size_t>(&len);
     socket_.read(buffer, len);
+    
+//    if(tmdb::socket::state::undef == socket_.state_)
+//    {
+//        socket_.close();
+//        return false;
+//    }
+    
     message = buffer;
     
     return true;

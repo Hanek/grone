@@ -13,6 +13,7 @@
 #include "devices.hpp"
 #include "socket.hpp"
 #include "protocol.hpp"
+#include "server.hpp"
 
 void linear_serializer_test()
 { 
@@ -534,7 +535,10 @@ int main()
   // get_block_test();
   
   
-  tcp_server_test();
+//  tcp_server_test();
+  
+  tmdb::server srv;
+  srv.run();
   
 
   return 0;

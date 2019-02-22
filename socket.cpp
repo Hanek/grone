@@ -91,7 +91,7 @@ tmdb::connector::connector(std::string const& host, int port): provider(::socket
 }
 
 
-
+ 
 
 tmdb::listener::listener(int port): socket(::socket(PF_INET, SOCK_STREAM, 0))
 {
@@ -167,6 +167,7 @@ bool tmdb::provider::write(const std::string& msg)
 
 bool tmdb::provider::close()
 {
+//    state_ = state::undef;
     if(::shutdown(get_socket_id(), SHUT_WR) != 0)
     {
         LOG_ERROR << __PRETTY_FUNCTION__ << ": shutdown error: " << strerror(errno);
@@ -187,13 +188,15 @@ bool tmdb::provider::read(char* buffer, std::size_t len)
         {
             if(EINTR == errno || EAGAIN == errno || ETIMEDOUT == errno)
             { continue; }
-            LOG_ERROR << __PRETTY_FUNCTION__ << ": failed to write to socket: " << strerror(errno);
+            LOG_ERROR << __PRETTY_FUNCTION__ << ": failed to read to socket: " << strerror(errno);
             return false;
         }
         
         /* end of file */
         if(0 == res)
         {
+//            state_ = state::undef;
+            LOG_ERROR << __PRETTY_FUNCTION__ << ": eof: " << strerror(errno);
             break;
         }
         

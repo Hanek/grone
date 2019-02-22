@@ -10,6 +10,7 @@ SOURCES = \
           devices.cpp\
           protocol.cpp\
           socket.cpp\
+          server.cpp\
           test.cpp
 
 GEN_SOURCES = generator.cpp
