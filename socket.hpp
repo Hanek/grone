@@ -39,11 +39,11 @@ namespace tmdb
     class provider: public socket
     {
     public:
-        enum class state { valid, eof, error, undef };
-        int a;
+        enum class state { connected, eof, error, undef };
+        state state_;
         
-        provider(): socket(is_invalid_) { std::cout << "provider empty\n"; }
-        provider(int id): socket(id), a(1) { std::cout << "provider\n"; }
+        provider(): socket(is_invalid_), state_(state::undef) { std::cout << "provider empty\n"; }
+        provider(int id): socket(id), state_(state::connected) { std::cout << "provider\n"; }
         bool read(char* buffer, std::size_t size);
         template <class T> bool read(T* var) { return read((char*)var, sizeof(T)); }
         bool write(const char* buffer, std::size_t size);

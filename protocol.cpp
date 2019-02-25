@@ -17,29 +17,26 @@
  * --------------------------------------
  */
 
-bool tmdb::protocol::send(const std::string& message, const char& type)
+void tmdb::protocol::send(const std::string& message, const char& type)
 {
     const request req(message, type);
     return send(req);
 }
-
-bool tmdb::protocol::send(const request& req)
+  
+void tmdb::protocol::send(const request& req)
 {
     socket_.write<char>(req.type_);
     socket_.write<size_t>(req.len_);
     socket_.write(req.val_);
     
-//    if(tmdb::socket::state::undef == socket_.state_)
-//    {
-//        socket_.close();
-//        return false;
-//    }
-    
-    return true;
+    if(provider::state::eof == socket_.state_)
+    {
+        is_ready_ = false;
+    }
 }
 
 
-bool tmdb::protocol::recv(std::string& message, char& type)
+void tmdb::protocol::recv(std::string& message, char& type)
 {
     size_t len;
     char buffer[4096] = {0};
@@ -47,13 +44,10 @@ bool tmdb::protocol::recv(std::string& message, char& type)
     socket_.read<size_t>(&len);
     socket_.read(buffer, len);
     
-//    if(tmdb::socket::state::undef == socket_.state_)
-//    {
-//        socket_.close();
-//        return false;
-//    }
-    
+    if(provider::state::eof == socket_.state_)
+    {
+        is_ready_ = false;
+        return;
+    }
     message = buffer;
-    
-    return true;
 }

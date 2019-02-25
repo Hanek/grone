@@ -55,5 +55,5 @@ all:
 	echo "db successfully built"
 
 clean:
-	/bin/rm -f $(OBJECTS) $(GEN_OBJECTS) $(BINDIR)db $(BINDIR)devgen *~ *.bin
+	/bin/rm -f $(OBJECTS) $(GEN_OBJECTS) $(CLIENT_OBJECTS) $(BINDIR)db $(BINDIR)devgen *~ *.bin
 

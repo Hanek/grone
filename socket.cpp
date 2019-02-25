@@ -8,7 +8,7 @@
 #include <string.h>
 
 #include  <plog/Log.h>
-#include "socket.hpp" 
+#include "socket.hpp"  
 
 
 tmdb::socket::socket(int socket_id) : socket_id_(socket_id)
@@ -167,7 +167,7 @@ bool tmdb::provider::write(const std::string& msg)
 
 bool tmdb::provider::close()
 {
-//    state_ = state::undef;
+    state_ = state::undef;
     if(::shutdown(get_socket_id(), SHUT_WR) != 0)
     {
         LOG_ERROR << __PRETTY_FUNCTION__ << ": shutdown error: " << strerror(errno);
@@ -195,7 +195,7 @@ bool tmdb::provider::read(char* buffer, std::size_t len)
         /* end of file */
         if(0 == res)
         {
-//            state_ = state::undef;
+            state_ = state::eof;
             LOG_ERROR << __PRETTY_FUNCTION__ << ": eof: " << strerror(errno);
             break;
         }

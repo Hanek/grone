@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
     tmdb::connector socket(argv[1], 8080);
     tmdb::protocol client(socket);
     int i = 0;
-    while(i < 1)
+    while(i < 20)
     {
         client.send("hello pizdabolskoe otrod'je..", 'a');
 

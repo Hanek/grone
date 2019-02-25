@@ -512,7 +512,7 @@ void core_factory_test()
 /* 
  * TODOs
  * - api
- * - performance testing
+ * - time to std::time
  * - device_id length must be limited somehow, serializer read_block and get_block must explicitly know max size  in runtime
  */
   
@@ -537,8 +537,8 @@ int main()
   
 //  tcp_server_test();
   
-  tmdb::server srv;
-  srv.run();
+  tmdb::server server(2, 3);
+  server.run();
   
 
   return 0;

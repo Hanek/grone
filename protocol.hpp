@@ -25,11 +25,12 @@ namespace tmdb
     private:
         provider& socket_;
     public:
-        protocol(provider& socket): socket_(socket) {}
-        bool send(const std::string& message, const char& type);
-        bool send(const request& req);
-        bool recv(std::string& message, char& type);
-        bool recv(request& req);
+        bool is_ready_;
+        protocol(provider& socket): socket_(socket), is_ready_(true) {}
+        void send(const std::string& message, const char& type);
+        void send(const request& req);
+        void recv(std::string& message, char& type);
+        void recv(request& req);
     };
     
 
