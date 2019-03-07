@@ -4,16 +4,16 @@
 
 Lighweight database with in-memory cache, operates on time series of data 
 
-## Getting Started
 
-Following soon...
+Clone or download sources:
 
-### Prerequisites
+`git clone https://github.com/Hanek/tdb.git`
 
-Logging library
-https://github.com/SergiusTheBest/plog
+Clone or download dependency libraries:
 
+`git clone https://github.com/vit-vit/CTPL.git`
+`git clone https://github.com/SergiusTheBest/plog.git`
 
-### Installing
+Biuld the project:
 
-Following soon...
+`make` 

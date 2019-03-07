@@ -13,6 +13,7 @@
 
 tmdb::socket::socket(int socket_id) : socket_id_(socket_id)
 {
+    std::cout << "ctor: " << socket_id_ << std::endl;
     if(is_invalid_ == socket_id_)
     {
         LOG_ERROR << __PRETTY_FUNCTION__ << ": invalid socket: " << strerror(errno);
@@ -30,14 +31,32 @@ tmdb::socket::~socket()
 
 tmdb::socket::socket(socket&& move) noexcept: socket_id_(is_invalid_)
 {
+    std::cout << "move ctor: " << socket_id_ << std::endl;
     move.swap(*this);
 }
 
 tmdb::socket& tmdb::socket::operator = (socket&& move) noexcept
 {
+   std::cout << "operator =: " << socket_id_ << std::endl;
     move.swap(*this);
     return *this;
 }
+
+
+tmdb::socket& tmdb::socket::clone(const socket& obj)
+{
+    tmdb::socket& socket_clone = *(new socket(obj.socket_id_));
+    int fd_clone = ::dup(obj.socket_id_);
+    if(is_invalid_ == fd_clone)
+    {
+        LOG_ERROR << __PRETTY_FUNCTION__ << ": clone failed: " << strerror(errno);
+        exit(0);
+    }
+    socket_clone.socket_id_ = fd_clone;
+    
+    return socket_clone;
+}
+
 
 
 void tmdb::socket::close()
@@ -66,15 +85,14 @@ void tmdb::socket::close()
     socket_id_ = is_invalid_;
 }
 
-void tmdb::socket::swap(socket& other) noexcept
+void tmdb::socket::swap(socket& obj) noexcept
 {
-    using std::swap;
-    swap(socket_id_, other.socket_id_);
-    std::cout << "swap: " << socket_id_ << " to: " << other.socket_id_ << std::endl;
+    std::swap(socket_id_, obj.socket_id_);
+    std::cout << "swap: " << socket_id_ << " to: " << obj.socket_id_ << std::endl;
 }
 
 
-tmdb::connector::connector(std::string const& host, int port): provider(::socket(PF_INET, SOCK_STREAM, 0))
+tmdb::connector::connector(const std::string& host, int port): provider(::socket(PF_INET, SOCK_STREAM, 0))
 {
     struct sockaddr_in server_addr{};
     server_addr.sin_family       = AF_INET;

@@ -23,12 +23,15 @@ namespace tmdb
     public:
         virtual ~socket();
         socket(int id);
-        /* allow move,  no copies */
+        /* allow move  */
         socket(socket&& move)              noexcept;
         socket& operator = (socket&& move) noexcept;
         void swap(socket& other)           noexcept;
-        socket(socket const&)              = delete;
-        socket& operator=(socket const&)   = delete;
+        /* refuse copy */
+        socket(const socket&)              = delete;
+        socket& operator=(const socket&)   = delete;
+        /* allow clone */
+        socket& clone(const socket&);
         int get_socket_id() const { return socket_id_; }
         void close();
         
@@ -57,7 +60,7 @@ namespace tmdb
     class connector: public provider
     {
     public:
-        connector(std::string const& host, int port);
+        connector(const std::string& host, int port);
     };
     
     
