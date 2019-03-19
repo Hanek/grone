@@ -27,12 +27,13 @@ void tmdb::server::worker(int id, tmdb::provider& socket)
     tmdb::protocol server(socket);  
     while(server.is_ready_)
     {
-        char type;
-        std::string message;
-        server.recv(message, type);
+        tmdb::request req;
+        server.recv(req);
         if(!server.is_ready_)
         { break; }
-        std::cout << "[ recv: " << socket.get_socket_id() << " ]: " << message << "\n";
+        std::cout << "[ recv: " << socket.get_socket_id() << " ]: " << req.val_ << "\n";
+        
+        /* handle client request */
         
         char reply[32] = {0};
         sprintf(reply, "ok, says polite #%d", id);
