@@ -8,8 +8,8 @@
 #include "server.hpp"
 
 
-tmdb::server::server(size_t pool_size, size_t max_connections): 
-pool_size_(pool_size), max_connections_(max_connections)
+tmdb::server::server(core& c, size_t pool_size, size_t max_connections): 
+core_(c), pool_size_(pool_size), max_connections_(max_connections)
 {
 
     
@@ -20,27 +20,7 @@ tmdb::server::~server()
     
 }
 
-//
-//std::function<void(void)> f = std::bind(&Foo::doSomething, this);
-//If you want to bind a function with parameters, you need to specify placeholders:
-//
-//using namespace std::placeholders;
-//std::function<void(int,int)> f = std::bind(&Foo::doSomethingArgs, this, _1, _2);
-//Or, if your compiler supports C++11 lambdas:
-//
-//std::function<void(int,int)> f = [=](int a, int b) {
-//    this->doSomethingArgs(a, b);
-//}
 
-
-
-void tmdb::server::init()
-{    
-  dispatchMap_ = {
-    {0x01, [=](const std::string& a, std::string& b) { core_.device_list(a, b); } },
-    {0x02,  [=](const std::string& a, std::string& b) { core_.device_list(a, b); } } };
-  
-}
 
 void tmdb::server::worker(int id, tmdb::provider& socket, tmdb::server& thisObj)
 {
@@ -48,51 +28,43 @@ void tmdb::server::worker(int id, tmdb::provider& socket, tmdb::server& thisObj)
     while(server.is_ready_)
     {
         tmdb::request req;
+        tmdb::request rep;
         server.recv(req);
         if(!server.is_ready_)
         { break; }
-        std::cout << "[ recv: " << socket.get_socket_id() << " ]: " << req.val_ << "\n";
+        std::cout << "[" << id << ":" << socket.get_socket_id() <<  "] = " << req.val_ << "\n";
         
         /* handle client request */
-        thisObj.dispatch(req);
+        thisObj.dispatch(req, rep);
         
-        char reply[32] = {0};
-        sprintf(reply, "ok, says polite #%d", id);
-        server.send(reply, 'b');
-        std::cout << "[ send: " << socket.get_socket_id() << " ]: " << reply << "\n";
+        server.send(rep);
     } 
-    
     socket.close();
 }
 
 
-void tmdb::server::dispatch(tmdb::request& req)
+void tmdb::server::dispatch(tmdb::request& req, tmdb::request& rep)
 {
-  auto it = dispatchMap_.find(req.type_);
-  if(it == dispatchMap_.end())
+  auto it = core_.dispatchMap_.find(req.type_);
+  if(it == core_.dispatchMap_.end())
   { return; }
   
-  std::string response;
-  it->second(req.val_, response);
-  
-  std::cout << "server response: " << response << std::endl;
+  it->second(req.val_, rep.val_);
+  rep.type_ = req.type_;
+  rep.len_  = rep.val_.size();
 }
 
 
 void tmdb::server::run()
 {
     int pool_size = 2;
-    init();
-    tmdb::core c;
     
     ctpl::thread_pool pool(pool_size);
     tmdb::listener listener(8080);
     while(true)
     {
         std::cout << "listening...\n";
-        tmdb::provider accepted = listener.accept();
-//        std::function<void(void)> f = std::bind(&tmdb::server::worker, this, 0, std::move(accepted), std::move(c)); //, std::move(accepted), std::move(c));
-        
+        tmdb::provider accepted = listener.accept();      
         pool.push(tmdb::server::worker, std::move(accepted), std::move(*this));
     }
 }

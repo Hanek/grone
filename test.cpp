@@ -508,6 +508,62 @@ void core_factory_test()
     }
   }
 
+void fill_dev_test(tmdb::core& c)
+{
+  tmdb::test_device1::data d1_unit;
+  tmdb::test_device2::data d2_unit;
+
+  tmdb::device* pDev = 0;
+
+  for(int i = 0; i < 3; i++)
+  {
+    pDev = c.factory_->create("device1");
+    /* serialize when data is availble, no copying here */
+    fill_device1(d1_unit);
+    pDev->serialize(&d1_unit);
+    counter++;
+    delete pDev;
+  }
+  c.cacheIt();
+  
+  for(int i = 0; i < 3; i++)
+  {
+    pDev = c.factory_->create("device2");
+    /* serialize when data is availble, no copying here */
+    fill_device2(d2_unit);
+    pDev->serialize(&d2_unit);
+    counter++;
+    delete pDev;
+  }
+
+  c.cacheIt();
+
+  for(int i = 0; i < 3; i++)
+  {
+    pDev = c.factory_->create("device1");
+    /* serialize when data is availble, no copying here */
+    fill_device1(d1_unit);
+    pDev->serialize(&d1_unit);
+    counter++;
+    delete pDev;
+  }
+
+//  c.cacheIt();
+
+  for(int i = 0; i < 3; i++)
+  {
+    pDev = c.factory_->create("device2");
+    /* serialize when data is available, no copying here */
+    fill_device2(d2_unit);
+    pDev->serialize(&d2_unit);
+    counter++;
+    delete pDev;
+  }
+}
+  
+  
+  
+  
 
 /* 
  * TODOs
@@ -537,7 +593,12 @@ int main()
   
 //  tcp_server_test();
   
-  tmdb::server server(2, 3);
+  tmdb::core c;
+  c.init();
+  fill_dev_test(c);
+  c.dm_walk();
+  
+  tmdb::server server(c, 2, 3);
   server.run();
   
 

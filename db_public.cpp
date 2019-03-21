@@ -41,8 +41,7 @@ namespace tmdb
  
  void core::device_list(const std::string& args, std::string& resp)
  {
-   resp = "=== device_list response ===";
-   
+     resp = factory_->get_device_list();
  }
   
 }

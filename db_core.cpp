@@ -27,6 +27,17 @@ namespace tmdb
  
   }
   
+  void core::init()
+  {
+    dispatchMap_ = 
+    {
+      {0x01, [=](const std::string& req, std::string& rep) { this->get(req, rep); } },
+      {0x02,  [=](const std::string& req, std::string& rep) { this->device_list(req, rep); } } 
+    };
+      
+  }
+  
+  
   void core::cacheIt() 
   {
     time t;
@@ -48,7 +59,7 @@ namespace tmdb
       std::string device_id(str);
       memset(str, 0x00, serializer::dev_id_max());
       std::cout << device_id << std::endl;
-     /* block 1is a pointer to device data */
+     /* block is a pointer to device data */
       std::pair<void*,time> device = std::make_pair(block, t);
       
       auto it = dmap_.find(device_id);

@@ -36,6 +36,7 @@ namespace tmdb
         protocol(provider& socket): socket_(socket), is_ready_(true) {}
         void send(const std::string& message, const char& type);
         void send(const_request& req);
+        void send(request& req);
         void recv(std::string& message, char& type);
         void recv(request& req);
     };

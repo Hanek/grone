@@ -128,6 +128,16 @@ namespace tmdb
             { return it->second(device_id, data); }
             return 0;
         }
+        
+        std::string get_device_list()
+        {
+            std::string device_list;
+            for(const auto& device: mapCreate_) 
+            {
+                device_list += device.first + std::string(" ");
+            }
+            return device_list;
+        }
 
         template <typename T>
             void register_device(const char* device_id)

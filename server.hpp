@@ -17,16 +17,14 @@ namespace tmdb
     class server
     {
     private:
-        tmdb::core core_;
+        core&  core_;
         size_t pool_size_;
         size_t max_connections_;
     public:
-        server(size_t, size_t);
+        server(core&, size_t, size_t);
         ~server();
-        void init();
-        std::map<const char, std::function<void(const std::string&,std::string&)> > dispatchMap_;  
         static void worker(int id, tmdb::provider&, tmdb::server&);
-        void dispatch(tmdb::request&);
+        void dispatch(tmdb::request&, tmdb::request&);
         void run();
         
     };

@@ -5,6 +5,7 @@
 #include <fstream>
 #include <map>
 #include <vector>
+#include <functional>
 
 #ifndef _DB_CORE_H
 #define _DB_CORE_H
@@ -68,11 +69,13 @@ namespace tmdb
     device_factory* factory_;  
 
     /*************** public api ***************/
+    void init();
+    std::map<const char, std::function<void(const std::string&, std::string&)> > dispatchMap_;    
     
     void get(const std::string& device_id, std::string& resp);
     
     /* list registered devices */
-    static void device_list(const std::string& args, std::string& resp);
+    void device_list(const std::string& args, std::string& resp);
     
   private:
     static bool instance_;

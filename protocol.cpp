@@ -34,6 +34,18 @@ void tmdb::protocol::send(const_request& req)
         is_ready_ = false;
     }  
 }
+ 
+void tmdb::protocol::send(request& req)
+{
+    socket_.write<char>(req.type_);
+    socket_.write<size_t>(req.len_);
+    socket_.write(req.val_);
+    
+    if(provider::state::eof == socket_.state_)
+    {
+        is_ready_ = false;
+    }  
+}
 
 
 void tmdb::protocol::recv(std::string& message, char& type)
