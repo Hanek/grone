@@ -29,7 +29,7 @@ namespace tmdb
       resp += "[ " + vit->second.get_date() + "\t";
       /* use as external buffer */
       pDev->deserialize_sync(vit->first);
-      pDev->print_data(ss);
+//      pDev->print_data(ss);
       resp += ss.str();
       ss.str("");
       resp += " ]";
@@ -38,4 +38,13 @@ namespace tmdb
 
   }
  
+ 
+ void core::device_list(const std::string& args, std::string& resp)
+ {
+   resp = "=== device_list response ===";
+   
+ }
+  
 }
+
+

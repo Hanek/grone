@@ -1,5 +1,6 @@
 #include <cerrno>
 #include <iostream>
+#include <map>
 
 #ifndef _DB_CLIENT_H
 #define _DB_CLIENT_H
@@ -14,6 +15,7 @@ namespace tmdb
   public:
     client();
     ~client();
+    std::map<std::string,const char> reqMap_;  
   };
 }
 

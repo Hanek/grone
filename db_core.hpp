@@ -71,6 +71,8 @@ namespace tmdb
     
     void get(const std::string& device_id, std::string& resp);
     
+    /* list registered devices */
+    static void device_list(const std::string& args, std::string& resp);
     
   private:
     static bool instance_;

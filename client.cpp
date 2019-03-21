@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
     int i = 0;
     while(i < 20)
     {
-        client.send("hello pizdabolskoe otrod'je..", 'a');
+        client.send("client request..", 0x01);
 
         char type;
         std::string message;
