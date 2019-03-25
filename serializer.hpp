@@ -184,6 +184,21 @@ public:
     pos_ += sizeof(T);
   }
   
+ /**** get member size, same as deserialize but making no copies ****/
+  
+  size_t size()
+  {
+    size_t size = strlen(pos_) + 1;
+    pos_ += size;
+    return size;
+  }
+  
+  template <class T> size_t size()
+  { 
+    pos_ += sizeof(T);
+    return sizeof(T);
+  }
+  
   /******************************************************************/
   
   void dump()

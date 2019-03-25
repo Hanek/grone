@@ -28,6 +28,7 @@ namespace tmdb
         virtual void deserialize_sync(void*)                    = 0;
         virtual void serialize(void*)                           = 0;
         virtual void deserialize(void*, void*)                  = 0;
+        virtual size_t size(void*)                              = 0;
     };
 
     /************************************   test_device1   ************************************/
@@ -55,6 +56,7 @@ namespace tmdb
         void deserialize_sync(void*);
         void serialize(void*);
         void deserialize(void*, void*);
+        size_t size(void*);
     };
 
     /************************************   test_device2   ************************************/
@@ -79,6 +81,7 @@ namespace tmdb
         void deserialize_sync(void*);
         void serialize(void*);
         void deserialize(void*, void*);
+        size_t size(void*);
     };
 
     /************************************   test_device3   ************************************/
@@ -102,6 +105,7 @@ namespace tmdb
         void deserialize_sync(void*);
         void serialize(void*);
         void deserialize(void*, void*);
+        size_t size(void*);
     };
 
     /************************************   factory   ************************************/
@@ -128,7 +132,7 @@ namespace tmdb
             { return it->second(device_id, data); }
             return 0;
         }
-        
+
         std::string get_device_list()
         {
             std::string device_list;

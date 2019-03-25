@@ -24,11 +24,13 @@ namespace tmdb
     {
       /*
        * vit->second is a timestamp and vit->first is a pointer to raw data,
-       * that's what going to be send to frontend, just printing out at the current stage
+       * that's what going to be send to client endpoint, just printing out at the current stage
        */
       resp += "[ " + vit->second.get_date() + "\t";
       /* use as external buffer */
-      pDev->deserialize_sync(vit->first);
+      size_t dev_size = pDev->size(vit->first);
+      std::cout << "dev_size: " << dev_size << std::endl;
+//      pDev->deserialize_sync(vit->first);
 //      pDev->print_data(ss);
       resp += ss.str();
       ss.str("");

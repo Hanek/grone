@@ -72,6 +72,19 @@ namespace tmdb
         exs.deserialize<char>(&data_unit.mode_);
     }
 
+    size_t test_device1::size(void* block)
+    {
+        size_t size = 0;
+        serializer exs(static_cast<char*>(block));
+        size += exs.size<int>();
+        size += exs.size<int>();
+        size += exs.size<float>();
+        size += exs.size<double>();
+        size += exs.size();
+        size += exs.size<char>();
+        return size;
+    }
+
 
     /**************************************   test_device2   **************************************/
 
@@ -121,6 +134,16 @@ namespace tmdb
         exs.deserialize(data_unit.descr_);
     }
 
+    size_t test_device2::size(void* block)
+    {
+        size_t size = 0;
+        serializer exs(static_cast<char*>(block));
+        size += exs.size<int>();
+        size += exs.size<double>();
+        size += exs.size();
+        return size;
+    }
+
 
     /**************************************   test_device3   **************************************/
 
@@ -163,6 +186,15 @@ namespace tmdb
         serializer exs(static_cast<char*>(block));
         exs.deserialize<int>(&data_unit.x_);
         exs.deserialize(data_unit.descr_);
+    }
+
+    size_t test_device3::size(void* block)
+    {
+        size_t size = 0;
+        serializer exs(static_cast<char*>(block));
+        size += exs.size<int>();
+        size += exs.size();
+        return size;
     }
 
 }

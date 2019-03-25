@@ -2,6 +2,7 @@
 #include "client.hpp"
 #include "socket.hpp"
 #include "protocol.hpp"
+#include "devices.hpp"
 
 
 int main(int argc, char* argv[])

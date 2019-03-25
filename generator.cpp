@@ -367,8 +367,28 @@ void generator::dump_source(const std::string& str)
         devices << intend(1) << "}\n";
         devices << newline(1);
         
+        /****************   size   ****************/
+        
+        devices << intend(1) << "size_t " << it.first << "::size(void* block)\n";
+        devices << intend(1) << "{\n";
+        devices << intend(2) << "size_t size = 0;\n";
+        devices << intend(2) << "serializer exs(static_cast<char*>(block));\n";
+        
+        
+        for(auto& i : it.second.members_)
+        {
+            if(std::string("std::string") == std::get<0>(i))
+            {
+                devices << intend(2) << "size += exs.size();\n";
+                continue;
+            }
+            devices << intend(2) << "size += exs.size<" << std::get<0>(i) << ">();\n";
+        }
+        devices << intend(2) << "return size;\n";
+        devices << intend(1) << "}\n";
+        devices << newline(1);
+                       
     }
-    
     devices << "}\n";
     devices.close();
 }
@@ -409,6 +429,7 @@ void generator::dump_header(const std::string& str)
     devices << intend(2) << "virtual void deserialize_sync(void*)                    = 0;\n";
     devices << intend(2) << "virtual void serialize(void*)                           = 0;\n";
     devices << intend(2) << "virtual void deserialize(void*, void*)                  = 0;\n";
+    devices << intend(2) << "virtual size_t size(void*)                              = 0;\n";
     devices << intend(1) << "};\n";
 
     for(auto&& it : device_map_)
@@ -450,6 +471,7 @@ void generator::dump_header(const std::string& str)
         devices << intend(2) << "void deserialize_sync(void*);\n";
         devices << intend(2) << "void serialize(void*);\n";
         devices << intend(2) << "void deserialize(void*, void*);\n";
+        devices << intend(2) << "size_t size(void*);\n"; 
         devices << intend(1) << "};\n";
     }
 
