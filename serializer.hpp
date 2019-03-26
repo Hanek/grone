@@ -51,13 +51,13 @@ private:
   /* whole message length */
   int    message_len_;
   /* dynamically allocated buffer */
-  char*  buf_;
-  char*  buf_copy_;
+  unsigned char*  buf_;
+  unsigned char*  buf_copy_;
 
   /* current position */
-  char*  pos_;
+  unsigned char*  pos_;
   /* begininng of current block */
-  char*  beg_;
+  unsigned char*  beg_;
   /* current block length, calculated on finalize() */
   int block_len_;
     
@@ -79,18 +79,18 @@ private:
    
 public:
   serializer(size_t size);  
-  serializer(char* buf);
-  serializer(char* buf, int len);
+  serializer(unsigned char* buf);
+  serializer(unsigned char* buf, int len);
   ~serializer() { if(!external_){ delete[] buf_; } }
   bool empty() { return (0 == size_) ? 1 : 0; }
   size_t get_size() { return size_; }
   size_t length() { return message_len_; }
   size_t get_hlen() { return hlen_; }
-  void* get_buffer() { return buf_; }
+  unsigned char* get_buffer() { return buf_; }
   static int dev_id_max() { return dev_id_max_; }
   
   /* copy data to serializer */
-  void update_buffer(void* bufin, size_t sizein);
+  void update_buffer(unsigned char* bufin, size_t sizein);
   
   /* 
    * paired, used by cacheIt exclusivly 
@@ -98,10 +98,10 @@ public:
    * - detaching allows buffer reuse and avoid extra allocs
    */
   void shrink_to_fit();
-  void* detach_buffer();
+  unsigned char* detach_buffer();
   
   /* allocate memory and copy */
-  void* copy_buffer();
+  unsigned char* copy_buffer();
   void clear();
   void reset();
   /* called prior to device serialization */ 
@@ -114,7 +114,7 @@ public:
    */
   bool read_block(char* id);
   /* iterate over dev_id */
-  void* get_block(char* id);
+  unsigned char* get_block(char* id);
   
   /******************** serialization methods ********************/
   
@@ -168,14 +168,14 @@ public:
   
   void deserialize(char* str)
   {
-    memcpy((void*)str, pos_, strlen(pos_)); 
-    pos_ += strlen(pos_) + 1;
+    memcpy((void*)str, reinterpret_cast<const char*>(pos_), strlen(reinterpret_cast<const char*>(pos_))); 
+    pos_ += strlen(reinterpret_cast<const char*>(pos_)) + 1;
   }
   
   void deserialize(std::string& str)
   {
-    str = std::string(pos_);
-    pos_ += strlen(pos_) + 1;
+    str = std::string(reinterpret_cast<const char*>(pos_));
+    pos_ += strlen(reinterpret_cast<const char*>(pos_)) + 1;
   }
   
   template <class T> void deserialize(T* var)
@@ -188,7 +188,7 @@ public:
   
   size_t size()
   {
-    size_t size = strlen(pos_) + 1;
+    size_t size = strlen(reinterpret_cast<const char*>(pos_)) + 1;
     pos_ += size;
     return size;
   }
@@ -204,7 +204,7 @@ public:
   void dump()
   {
     std::ofstream file("buf.bin", std::ios::out | std::ios::binary);
-    file.write(buf_, size_);
+    file.write(reinterpret_cast<const char*>(buf_), size_);
     file.close();
   }
 };

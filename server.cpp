@@ -22,7 +22,7 @@ tmdb::server::~server()
 
 
 
-void tmdb::server::worker(int id, tmdb::provider& socket, tmdb::server& thisObj)
+void tmdb::server::worker(int id, tmdb::provider& socket, tmdb::server& obj)
 {
     tmdb::protocol server(socket);  
     while(server.is_ready_)
@@ -32,16 +32,17 @@ void tmdb::server::worker(int id, tmdb::provider& socket, tmdb::server& thisObj)
         server.recv(req);
         if(!server.is_ready_)
         { break; }
-        std::cout << "[" << id << ":" << socket.get_socket_id() <<  "] = " << req.val_ << "\n";
+        std::cout << "[" << id << ":" << socket.get_socket_id() <<  "] = type: " 
+                         << req.type_ << ", length: " << req.len_ << "\n";
         
         /* handle client request */
-        thisObj.dispatch(req, rep);
+        obj.dispatch(req, rep);
         
         server.send(rep);
     } 
     socket.close();
 }
-
+ 
 
 void tmdb::server::dispatch(tmdb::request& req, tmdb::request& rep)
 {
@@ -49,7 +50,7 @@ void tmdb::server::dispatch(tmdb::request& req, tmdb::request& rep)
   if(it == core_.dispatchMap_.end())
   { return; }
   
-  it->second(req.val_, rep.val_);
+//  it->second(req.val_, rep.val_);
   rep.type_ = req.type_;
   rep.len_  = rep.val_.size();
 }

@@ -6,6 +6,7 @@
 #include <map>
 #include <vector>
 #include <functional>
+#include "protocol.hpp"
 
 #ifndef _DB_CORE_H
 #define _DB_CORE_H
@@ -70,19 +71,20 @@ namespace tmdb
 
     /*************** public api ***************/
     void init();
-    std::map<const char, std::function<void(const std::string&, std::string&)> > dispatchMap_;    
+    std::map<const char, std::function<void(tmdb::request&, tmdb::request&)> > dispatchMap_;    
     
-    void get(const std::string& device_id, std::string& resp);
+    /* get some data now... */
+    void get(tmdb::request& req, tmdb::request& resp);
     
     /* list registered devices */
-    void device_list(const std::string& args, std::string& resp);
+    void device_list(tmdb::request& req, tmdb::request& resp);
     
   private:
     static bool instance_;
     /* bare map, holds chunks of memory detached from serializer */
-    static std::map<time,std::pair<void*,int> > bmap_;
+    static std::map<time,std::pair<unsigned char*,int> > bmap_;
     /* device map, holds pointers to device data */ 
-    static std::map<std::string,std::vector<std::pair<void*,time> > > dmap_;
+    static std::map<std::string,std::vector<std::pair<unsigned char*,time> > > dmap_;
   };
 }
 

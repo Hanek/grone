@@ -6,8 +6,8 @@
 namespace tmdb
 {
   bool core::instance_ = false;
-  std::map<time,std::pair<void*,int> > core::bmap_;
-  std::map<std::string,std::vector<std::pair<void*,time> > >core::dmap_;
+  std::map<time,std::pair<unsigned char*,int> > core::bmap_;
+  std::map<std::string,std::vector<std::pair<unsigned char*,time> > >core::dmap_;
   
   core::core()
   {
@@ -31,8 +31,8 @@ namespace tmdb
   {
     dispatchMap_ = 
     {
-      {0x01, [=](const std::string& req, std::string& rep) { this->get(req, rep); } },
-      {0x02,  [=](const std::string& req, std::string& rep) { this->device_list(req, rep); } } 
+      {0x01, [=](tmdb::request& req, tmdb::request& rep) { this->get(req, rep); } },
+      {0x02,  [=](tmdb::request& req, tmdb::request& rep) { this->device_list(req, rep); } } 
     };
       
   }
@@ -53,14 +53,14 @@ namespace tmdb
     s->reset();
 
     /* get_block() return pointer to block and copy device_id to str */ 
-    for(void* block = s->get_block(str); block; block = s->get_block(str))
+    for(unsigned char* block = s->get_block(str); block; block = s->get_block(str))
     {
       /* device_id of current block */
       std::string device_id(str);
       memset(str, 0x00, serializer::dev_id_max());
       std::cout << device_id << std::endl;
      /* block is a pointer to device data */
-      std::pair<void*,time> device = std::make_pair(block, t);
+      std::pair<unsigned char*,time> device = std::make_pair(block, t);
       
       auto it = dmap_.find(device_id);
       if(it != dmap_.end())
@@ -69,9 +69,9 @@ namespace tmdb
       }
       else
       {/* insert new device in the map */
-        std::vector<std::pair<void*,time> >v_dev;
+        std::vector<std::pair<unsigned char*,time> >v_dev;
         v_dev.push_back(device);
-        dmap_.insert(std::pair<std::string,std::vector<std::pair<void*,time> > >(device_id, v_dev));
+        dmap_.insert(std::pair<std::string,std::vector<std::pair<unsigned char*,time> > >(device_id, v_dev));
       }
     }
     
@@ -79,7 +79,7 @@ namespace tmdb
     
     /* detach and insert into bare map */
     int buffer_len = s->length();
-    void* buf = s->detach_buffer();
+    unsigned char* buf = s->detach_buffer();
     bmap_[t] = std::make_pair(buf, buffer_len);
   }
 
@@ -91,8 +91,8 @@ namespace tmdb
     {
       std::cout << __PRETTY_FUNCTION__ << ":time: " <<  rit->first.get_date() << std::endl;
       /* parse memory and remove corresponding devices in dmap_ */
-      serializer s(static_cast<char*>(rit->second.first), rit->second.second);
-      for(void* block = s.get_block(str); block; block = s.get_block(str))
+      serializer s(rit->second.first, rit->second.second);
+      for(unsigned char* block = s.get_block(str); block; block = s.get_block(str))
       {
         /* device_id of current block */
         std::string device_id(str);
@@ -137,7 +137,7 @@ namespace tmdb
       /* device_id */
       std::cout << "device_id: " << cit->first << std::endl;
       pDev = factory_->create(cit->first.c_str());
-      std::vector<std::pair<void*,time> >:: const_iterator vit;
+      std::vector<std::pair<unsigned char*,time> >:: const_iterator vit;
       for(vit = cit->second.begin(); vit != cit->second.end(); vit++)
       {
         std::cout << "-time: " << vit->second.get_date() << "\t";

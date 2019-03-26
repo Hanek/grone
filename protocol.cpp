@@ -51,10 +51,10 @@ void tmdb::protocol::send(request& req)
 void tmdb::protocol::recv(std::string& message, char& type)
 {
     size_t len;
-    char buffer[4096] = {0};
     socket_.read<char>(&type);
     socket_.read<size_t>(&len);
-    socket_.read(buffer, len);
+    char buffer[len] = {0};
+    socket_.read(reinterpret_cast<unsigned char*>(buffer), len);
     
     if(provider::state::eof == socket_.state_)
     {
@@ -66,11 +66,12 @@ void tmdb::protocol::recv(std::string& message, char& type)
 
 void tmdb::protocol::recv(request& req)
 {
-    char buffer[4096] = {0};
+    
     socket_.read<char>(&req.type_);
     socket_.read<size_t>(&req.len_);
-    socket_.read(buffer, req.len_);
-    req.val_ = buffer;
+    req.val_.reserve(req.len_);
+    socket_.read(req.val_.data(), req.len_);
+    
     if(provider::state::eof == socket_.state_)
     {
         is_ready_ = false;

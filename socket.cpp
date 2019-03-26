@@ -177,6 +177,11 @@ bool tmdb::provider::write(const char* buffer, std::size_t len)
     return true;
 }
 
+bool tmdb::provider::write(const std::vector<unsigned char>& msg)
+{
+    return write(reinterpret_cast<const char*>(msg.data()), msg.size());
+}
+
 bool tmdb::provider::write(const std::string& msg)
 {
     return write(msg.c_str(), msg.length()); 
@@ -196,7 +201,7 @@ bool tmdb::provider::close()
 
 
 
-bool tmdb::provider::read(char* buffer, std::size_t len)
+bool tmdb::provider::read(unsigned char* buffer, std::size_t len)
 {
     std::size_t read = 0;
     while(read < len)

@@ -23,9 +23,9 @@ namespace tmdb
     public:
         char   type_;
         size_t len_;
-        std::string val_;
+        std::vector<unsigned char> val_;
     };
-    
+        
     
     class protocol
     {

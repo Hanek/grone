@@ -36,9 +36,9 @@ namespace tmdb
         ins->finalize_block();
     }
 
-    void test_device1::deserialize_sync(void* block)
+    void test_device1::deserialize_sync(unsigned char* block)
     {
-        serializer exs(static_cast<char*>(block));
+        serializer exs(block);
         exs.deserialize<int>(&data_unit_.x_);
         exs.deserialize<int>(&data_unit_.y_);
         exs.deserialize<float>(&data_unit_.val_);
@@ -47,9 +47,9 @@ namespace tmdb
         exs.deserialize<char>(&data_unit_.mode_);
     }
 
-    void test_device1::serialize(void* mem)
+    void test_device1::serialize(unsigned char* mem)
     {
-        data& data_unit = *(static_cast<data*>(mem));
+        data& data_unit = *(reinterpret_cast<data*>(mem));
         ins->sign_block(device_id_.c_str());
         ins->serialize<int>(data_unit.x_);
         ins->serialize<int>(data_unit.y_);
@@ -60,10 +60,10 @@ namespace tmdb
         ins->finalize_block();
     }
 
-    void test_device1::deserialize(void* block, void* mem)
+    void test_device1::deserialize(unsigned char* block, unsigned char* mem)
     {
-        data& data_unit = *(static_cast<data*>(mem));
-        serializer exs(static_cast<char*>(block));
+        data& data_unit = *(reinterpret_cast<data*>(mem));
+        serializer exs(block);
         exs.deserialize<int>(&data_unit.x_);
         exs.deserialize<int>(&data_unit.y_);
         exs.deserialize<float>(&data_unit.val_);
@@ -72,10 +72,10 @@ namespace tmdb
         exs.deserialize<char>(&data_unit.mode_);
     }
 
-    size_t test_device1::size(void* block)
+    size_t test_device1::size(unsigned char* block)
     {
         size_t size = 0;
-        serializer exs(static_cast<char*>(block));
+        serializer exs(block);
         size += exs.size<int>();
         size += exs.size<int>();
         size += exs.size<float>();
@@ -107,17 +107,17 @@ namespace tmdb
         ins->finalize_block();
     }
 
-    void test_device2::deserialize_sync(void* block)
+    void test_device2::deserialize_sync(unsigned char* block)
     {
-        serializer exs(static_cast<char*>(block));
+        serializer exs(block);
         exs.deserialize<int>(&data_unit_.x_);
         exs.deserialize<double>(&data_unit_.temp_);
         exs.deserialize(data_unit_.descr_);
     }
 
-    void test_device2::serialize(void* mem)
+    void test_device2::serialize(unsigned char* mem)
     {
-        data& data_unit = *(static_cast<data*>(mem));
+        data& data_unit = *(reinterpret_cast<data*>(mem));
         ins->sign_block(device_id_.c_str());
         ins->serialize<int>(data_unit.x_);
         ins->serialize<double>(data_unit.temp_);
@@ -125,19 +125,19 @@ namespace tmdb
         ins->finalize_block();
     }
 
-    void test_device2::deserialize(void* block, void* mem)
+    void test_device2::deserialize(unsigned char* block, unsigned char* mem)
     {
-        data& data_unit = *(static_cast<data*>(mem));
-        serializer exs(static_cast<char*>(block));
+        data& data_unit = *(reinterpret_cast<data*>(mem));
+        serializer exs(block);
         exs.deserialize<int>(&data_unit.x_);
         exs.deserialize<double>(&data_unit.temp_);
         exs.deserialize(data_unit.descr_);
     }
 
-    size_t test_device2::size(void* block)
+    size_t test_device2::size(unsigned char* block)
     {
         size_t size = 0;
-        serializer exs(static_cast<char*>(block));
+        serializer exs(block);
         size += exs.size<int>();
         size += exs.size<double>();
         size += exs.size();
@@ -164,34 +164,34 @@ namespace tmdb
         ins->finalize_block();
     }
 
-    void test_device3::deserialize_sync(void* block)
+    void test_device3::deserialize_sync(unsigned char* block)
     {
-        serializer exs(static_cast<char*>(block));
+        serializer exs(block);
         exs.deserialize<int>(&data_unit_.x_);
         exs.deserialize(data_unit_.descr_);
     }
 
-    void test_device3::serialize(void* mem)
+    void test_device3::serialize(unsigned char* mem)
     {
-        data& data_unit = *(static_cast<data*>(mem));
+        data& data_unit = *(reinterpret_cast<data*>(mem));
         ins->sign_block(device_id_.c_str());
         ins->serialize<int>(data_unit.x_);
         ins->serialize(data_unit.descr_);
         ins->finalize_block();
     }
 
-    void test_device3::deserialize(void* block, void* mem)
+    void test_device3::deserialize(unsigned char* block, unsigned char* mem)
     {
-        data& data_unit = *(static_cast<data*>(mem));
-        serializer exs(static_cast<char*>(block));
+        data& data_unit = *(reinterpret_cast<data*>(mem));
+        serializer exs(block);
         exs.deserialize<int>(&data_unit.x_);
         exs.deserialize(data_unit.descr_);
     }
 
-    size_t test_device3::size(void* block)
+    size_t test_device3::size(unsigned char* block)
     {
         size_t size = 0;
-        serializer exs(static_cast<char*>(block));
+        serializer exs(block);
         size += exs.size<int>();
         size += exs.size();
         return size;

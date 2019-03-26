@@ -7,7 +7,7 @@ int serializer::dev_id_max_ = 4096;
 
 serializer::serializer(size_t size): size_(size), hlen_(0), external_(false)
   {  
-    buf_  = new(std::nothrow)char[size_];
+    buf_  = new(std::nothrow)unsigned char[size_];
     if(!buf_)
     { 
       LOG_FATAL << "buffer allocation failed: " << strerror(errno);
@@ -22,7 +22,7 @@ serializer::serializer(size_t size): size_(size), hlen_(0), external_(false)
 
   
 /* used for deserializing external buffers */
-serializer::serializer(char* buf): size_(32), hlen_(0), external_(true)
+serializer::serializer(unsigned char* buf): size_(32), hlen_(0), external_(true)
   {  
     buf_  = buf;
     message_len_ = 0;
@@ -32,7 +32,7 @@ serializer::serializer(char* buf): size_(32), hlen_(0), external_(true)
   }
 
 
-serializer::serializer(char* buf, int len): size_(len), hlen_(0), external_(true)
+serializer::serializer(unsigned char* buf, int len): size_(len), hlen_(0), external_(true)
   { 
     LOG_DEBUG << "serializer length: " << len;
     buf_  = buf;
@@ -50,8 +50,8 @@ bool serializer::out_of_mem()
     size_ *= 2;
     size_t shift1 = pos_ - buf_;
     size_t shift2 = beg_ - buf_;
-    char* buf_new;
-    buf_new = new(std::nothrow)char[size_];
+    unsigned char* buf_new;
+    buf_new = new(std::nothrow)unsigned char[size_];
     if(!buf_new)
     {
       LOG_FATAL << "buffer allocation failed: " << strerror(errno);
@@ -70,7 +70,7 @@ bool serializer::out_of_mem()
  
 
 
-void serializer::update_buffer(void* bufin, size_t sizein)
+void serializer::update_buffer(unsigned char* bufin, size_t sizein)
   {
     while(size_ <= sizein)
     { out_of_mem(); }
@@ -82,22 +82,22 @@ void serializer::update_buffer(void* bufin, size_t sizein)
 /* paired with detach_buffer, allocation */
 void serializer::shrink_to_fit()
 {
-  void* mem = new(std::nothrow)char[size_];
+  unsigned char* mem = new(std::nothrow)unsigned char[size_];
   if(!mem)
   {
     LOG_FATAL << "buffer allocation failed: " << strerror(errno);
     return;
   }
 
-  memcpy(mem, buf_, size_);
+  memcpy(static_cast<void*>(mem), buf_, size_);
   buf_copy_ = buf_;
-  buf_ = static_cast<char*>(mem);
+  buf_ = mem;
 }
 
 /* return internal buffer, take a copy made with shrink_to_fit, no allocation */
-void* serializer::detach_buffer()
+unsigned char* serializer::detach_buffer()
  {
-    void* mem = static_cast<void*>(buf_);
+    unsigned char* mem = buf_;
     buf_ = buf_copy_;
     buf_copy_ = NULL;
     clear();
@@ -107,9 +107,9 @@ void* serializer::detach_buffer()
  
 
 /* copy buffer of message_len_ into new memory chunk, allocation */
-void* serializer::copy_buffer()
+unsigned char* serializer::copy_buffer()
 {
-  void* mem = new(std::nothrow)char[message_len_];
+  unsigned char* mem = new(std::nothrow)unsigned char[message_len_];
   if(!mem)
   {
     LOG_FATAL << "buffer allocation failed: " << strerror(errno);
@@ -174,7 +174,7 @@ void serializer::clear()
    */
   bool serializer::read_block(char* id)
   {    
-    strcpy(id, pos_);
+    strcpy(id, reinterpret_cast<const char*>(pos_));
     hlen_ = strlen(id);
     
     while(pos_ - buf_ + hlen_ + sizeof(hlen_) >= size_)
@@ -191,10 +191,10 @@ void serializer::clear()
   }
   
   /* iterate over dev_id, no allocation */
-  void* serializer::get_block(char* id)
+  unsigned char* serializer::get_block(char* id)
   {
     /* don't know dev_id length in runtime */
-    strcpy(id, pos_);
+    strcpy(id, reinterpret_cast<const char*>(pos_));
     hlen_ = strlen(id);
 
     while(pos_ - buf_ + hlen_ + sizeof(hlen_) >= size_)

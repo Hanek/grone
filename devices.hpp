@@ -22,13 +22,13 @@ namespace tmdb
         device(const char* id): device_id_(id) {}
         virtual ~device() {}
 
-        virtual void* get_data()                                = 0;
-        virtual void print_data(std::ostream& os = std::cout)   = 0;
-        virtual void serialize_sync()                           = 0;
-        virtual void deserialize_sync(void*)                    = 0;
-        virtual void serialize(void*)                           = 0;
-        virtual void deserialize(void*, void*)                  = 0;
-        virtual size_t size(void*)                              = 0;
+        virtual void* get_data()                                  = 0;
+        virtual void print_data(std::ostream& os = std::cout)     = 0;
+        virtual void serialize_sync()                             = 0;
+        virtual void deserialize_sync(unsigned char*)             = 0;
+        virtual void serialize(unsigned char*)                    = 0;
+        virtual void deserialize(unsigned char*, unsigned char*)  = 0;
+        virtual size_t size(unsigned char*)                       = 0;
     };
 
     /************************************   test_device1   ************************************/
@@ -48,15 +48,15 @@ namespace tmdb
         };
         data data_unit_;
         test_device1(const char* id): device(id) {}
-        test_device1(const char* id, void* mem): device(id) { if(mem) {} }
+        test_device1(const char* id, unsigned char* mem): device(id) { if(mem) {} }
 
         void* get_data() { return &data_unit_; }
         void print_data(std::ostream& os = std::cout);
         void serialize_sync();
-        void deserialize_sync(void*);
-        void serialize(void*);
-        void deserialize(void*, void*);
-        size_t size(void*);
+        void deserialize_sync(unsigned char*);
+        void serialize(unsigned char*);
+        void deserialize(unsigned char*, unsigned char*);
+        size_t size(unsigned char*);
     };
 
     /************************************   test_device2   ************************************/
@@ -73,15 +73,15 @@ namespace tmdb
         };
         data data_unit_;
         test_device2(const char* id): device(id) {}
-        test_device2(const char* id, void* mem): device(id) { if(mem) {} }
+        test_device2(const char* id, unsigned char* mem): device(id) { if(mem) {} }
 
         void* get_data() { return &data_unit_; }
         void print_data(std::ostream& os = std::cout);
         void serialize_sync();
-        void deserialize_sync(void*);
-        void serialize(void*);
-        void deserialize(void*, void*);
-        size_t size(void*);
+        void deserialize_sync(unsigned char*);
+        void serialize(unsigned char*);
+        void deserialize(unsigned char*, unsigned char*);
+        size_t size(unsigned char*);
     };
 
     /************************************   test_device3   ************************************/
@@ -97,15 +97,15 @@ namespace tmdb
         };
         data data_unit_;
         test_device3(const char* id): device(id) {}
-        test_device3(const char* id, void* mem): device(id) { if(mem) {} }
+        test_device3(const char* id, unsigned char* mem): device(id) { if(mem) {} }
 
         void* get_data() { return &data_unit_; }
         void print_data(std::ostream& os = std::cout);
         void serialize_sync();
-        void deserialize_sync(void*);
-        void serialize(void*);
-        void deserialize(void*, void*);
-        size_t size(void*);
+        void deserialize_sync(unsigned char*);
+        void serialize(unsigned char*);
+        void deserialize(unsigned char*, unsigned char*);
+        size_t size(unsigned char*);
     };
 
     /************************************   factory   ************************************/
@@ -124,23 +124,13 @@ namespace tmdb
         }
 
         /* create device with data */
-        device* create_sync(const char* device_id, void* data)
+        device* create_sync(const char* device_id, unsigned char* data)
         {
             std::map<std::string,pCreate_sync>::iterator it;
             it = mapCreate_sync_.find(std::string(device_id));
             if(it != mapCreate_sync_.end())
             { return it->second(device_id, data); }
             return 0;
-        }
-
-        std::string get_device_list()
-        {
-            std::string device_list;
-            for(const auto& device: mapCreate_) 
-            {
-                device_list += device.first + std::string(" ");
-            }
-            return device_list;
         }
 
         template <typename T>
@@ -158,13 +148,13 @@ namespace tmdb
             { return new T(id); }
 
         template <typename T>
-            static device* instantiate_sync(const char* id,void* val)
+            static device* instantiate_sync(const char* id, unsigned char* val)
             { return new T(id, val); }
 
 
         typedef device* (*pCreate)(const char*);
         std::map<std::string,pCreate> mapCreate_;
-        typedef device* (*pCreate_sync)(const char*, void*);
+        typedef device* (*pCreate_sync)(const char*, unsigned char*);
         std::map<std::string,pCreate_sync> mapCreate_sync_;
     };
 }
