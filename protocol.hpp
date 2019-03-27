@@ -1,5 +1,7 @@
 #include <iostream>
 #include <string>
+#include <tuple>
+#include <vector>
 
 
 #ifndef _DB_PROTOCOL_H
@@ -24,6 +26,13 @@ namespace tmdb
         char   type_;
         size_t len_;
         std::vector<unsigned char> val_;
+        
+        /* total number of bytes in incoming request */
+        size_t  inlen_;
+        /* total number of bytes in outcoming request */
+        size_t outlen_;
+        std::vector<std::tuple<std::string,std::vector<unsigned char> > > inreq_;
+        std::vector<std::tuple<std::string,std::vector<unsigned char> > > outreq_;
     };
         
     

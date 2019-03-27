@@ -15,15 +15,21 @@ int main(int argc, char* argv[])
 
     tmdb::connector socket(argv[1], 8080);
     tmdb::protocol client(socket);
+    tmdb::request req;
+      
+    std::string hreq("some request..");
+    std::vector<unsigned char> breq;
+    req.type_   = 0x01;
+    req.outlen_ = hreq.size() + breq.size();
+    req.outreq_.push_back(std::tuple<std::string,std::vector<unsigned char> > (hreq, breq));
+    
     int i = 0;
     while(i < 20)
     {
-        client.send("device1", 0x01);
+        client.send(req);
 
-        char type;
-        std::string message;
-        client.recv(message, type);
-        std::cout << "receive: " << message << "\n";
+        client.recv(req);
+
         sleep(1);
         i++;
     }

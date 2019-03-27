@@ -1,6 +1,7 @@
 #include <cerrno>
 #include <iostream>
 #include <map>
+#include "protocol.hpp"
 
 #ifndef _DB_CLIENT_H
 #define _DB_CLIENT_H

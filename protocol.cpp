@@ -38,8 +38,12 @@ void tmdb::protocol::send(const_request& req)
 void tmdb::protocol::send(request& req)
 {
     socket_.write<char>(req.type_);
-    socket_.write<size_t>(req.len_);
-    socket_.write(req.val_);
+    socket_.write<size_t>(req.outlen_);
+    for(auto&& m: req.outreq_)
+    {
+        
+    }
+    
     
     if(provider::state::eof == socket_.state_)
     {
