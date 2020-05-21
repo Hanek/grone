@@ -1,30 +1,36 @@
 SRCDIR = .
-BINDIR = 
+BINDIR = ./bin/
 PRODUCT_FLAGS =
 
 SOURCES = \
-          time.cpp\
-          serializer.cpp\
-          db_core.cpp\
-	  db_public.cpp\
-          devices.cpp\
-          protocol.cpp\
-          socket.cpp\
-          server.cpp\
-          test.cpp
+          src/time.cpp\
+          src/serializer.cpp\
+          src/db_core.cpp\
+          src/db_public.cpp\
+          src/devices.cpp\
+          src/protocol.cpp\
+          src/socket.cpp\
+          src/server.cpp\
+          src/test.cpp
 
-GEN_SOURCES = generator.cpp
+GEN_SOURCES = src/generator.cpp
 
 CLIENT_SOURCES = \
-          protocol.cpp\
-          socket.cpp\
-          client.cpp
+          src/protocol.cpp\
+          src/socket.cpp\
+          src/client.cpp
+
+TEST_SOURCES = \
+          test/test.cpp\
+          test/serializer_test.cpp
 
 OBJECTS = $(SOURCES:%.cpp=%.o)
 	
 GEN_OBJECTS = $(GEN_SOURCES:%.cpp=%.o)
 	
 CLIENT_OBJECTS = $(CLIENT_SOURCES:%.cpp=%.o)
+
+TEST_OBJECTS = $(TEST_SOURCES:%.cpp=%.o)
 
 CXX = g++ -std=c++14
 
@@ -39,7 +45,7 @@ LDFLAGS = -lm -lrt -lpthread
 %.o: %.cpp
 	$(CXX)  $(PRODUCT_FLAGS) $(CXXFLAGS)  -c -o $@ $<
 
-all: db devgen client
+all: db devgen client test
 
 db: $(OBJECTS)
 	$(CXX) -o $(BINDIR)$@ $(OBJECTS) $(LDLIBS) $(LDFLAGS)
@@ -50,10 +56,13 @@ devgen: $(GEN_OBJECTS)
 client: $(CLIENT_OBJECTS)
 	$(CXX) -o $(BINDIR)$@ $(CLIENT_OBJECTS) $(LDLIBS) $(LDFLAGS)
 
+test:  $(TEST_OBJECTS)
+	$(CXX) -o $(BINDIR)$@ $(TEST_OBJECTS) $(LDLIBS) $(LDFLAGS)
+
 all:
 	@echo "============================================================================================="; \
 	echo "db successfully built"
 
 clean:
-	/bin/rm -f $(OBJECTS) $(GEN_OBJECTS) $(CLIENT_OBJECTS) $(BINDIR)db $(BINDIR)devgen *~ *.bin
+	/bin/rm -f $(OBJECTS) $(GEN_OBJECTS) $(CLIENT_OBJECTS) $(TEST_OBJECTS) $(BINDIR)* *~ *.bin
 
