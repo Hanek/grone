@@ -6,7 +6,7 @@
 #ifndef _DB_CLIENT_H
 #define _DB_CLIENT_H
 
-namespace tmdb
+namespace grone
 {
   class time;
   class serializer;

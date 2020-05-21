@@ -1,15 +1,14 @@
-#include <clocale>
-#include <pthread.h>
-#include <typeinfo>
 #include <iostream>
 #include <string>
 #include <sstream>
-#include <queue>
-#include <vector>
-#include <glib.h>
+
+#include <plog/Log.h> 
+
 
 
 int main() 
 {
+  plog::init(plog::error, "tmdb.log");
+  LOG_NONE << "autotests running... ";
   
 }

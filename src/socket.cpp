@@ -11,7 +11,7 @@
 #include "socket.hpp"  
 
 
-tmdb::socket::socket(int socket_id) : socket_id_(socket_id)
+grone::socket::socket(int socket_id) : socket_id_(socket_id)
 {
     std::cout << "ctor: " << socket_id_ << std::endl;
     if(is_invalid_ == socket_id_)
@@ -20,7 +20,7 @@ tmdb::socket::socket(int socket_id) : socket_id_(socket_id)
     }
 }
 
-tmdb::socket::~socket()
+grone::socket::~socket()
 {
     if(is_invalid_ == socket_id_)
     {
@@ -29,13 +29,13 @@ tmdb::socket::~socket()
     close();
 }
 
-tmdb::socket::socket(socket&& move) noexcept: socket_id_(is_invalid_)
+grone::socket::socket(socket&& move) noexcept: socket_id_(is_invalid_)
 {
     std::cout << "move ctor: " << socket_id_ << std::endl;
     move.swap(*this);
 }
 
-tmdb::socket& tmdb::socket::operator = (socket&& move) noexcept
+grone::socket& grone::socket::operator = (socket&& move) noexcept
 {
    std::cout << "operator =: " << socket_id_ << std::endl;
     move.swap(*this);
@@ -43,9 +43,9 @@ tmdb::socket& tmdb::socket::operator = (socket&& move) noexcept
 }
 
 
-tmdb::socket& tmdb::socket::clone(const socket& obj)
+grone::socket& grone::socket::clone(const socket& obj)
 {
-    tmdb::socket& socket_clone = *(new socket(obj.socket_id_));
+    grone::socket& socket_clone = *(new socket(obj.socket_id_));
     int fd_clone = ::dup(obj.socket_id_);
     if(is_invalid_ == fd_clone)
     {
@@ -59,7 +59,7 @@ tmdb::socket& tmdb::socket::clone(const socket& obj)
 
 
 
-void tmdb::socket::close()
+void grone::socket::close()
 {
     if(is_invalid_ == socket_id_)
     {
@@ -85,14 +85,14 @@ void tmdb::socket::close()
     socket_id_ = is_invalid_;
 }
 
-void tmdb::socket::swap(socket& obj) noexcept
+void grone::socket::swap(socket& obj) noexcept
 {
     std::swap(socket_id_, obj.socket_id_);
     std::cout << "swap: " << socket_id_ << " to: " << obj.socket_id_ << std::endl;
 }
 
 
-tmdb::connector::connector(const std::string& host, int port): provider(::socket(PF_INET, SOCK_STREAM, 0))
+grone::connector::connector(const std::string& host, int port): provider(::socket(PF_INET, SOCK_STREAM, 0))
 {
     struct sockaddr_in server_addr{};
     server_addr.sin_family       = AF_INET;
@@ -111,7 +111,7 @@ tmdb::connector::connector(const std::string& host, int port): provider(::socket
 
  
 
-tmdb::listener::listener(int port): socket(::socket(PF_INET, SOCK_STREAM, 0))
+grone::listener::listener(int port): socket(::socket(PF_INET, SOCK_STREAM, 0))
 {
     struct sockaddr_in server_addr;
     bzero((char*)&server_addr, sizeof(server_addr));
@@ -136,7 +136,7 @@ tmdb::listener::listener(int port): socket(::socket(PF_INET, SOCK_STREAM, 0))
 }
 
 
-tmdb::provider tmdb::listener::accept()
+grone::provider grone::listener::accept()
 {
     if(get_socket_id() == is_invalid_)
     {
@@ -158,7 +158,7 @@ tmdb::provider tmdb::listener::accept()
 }
  
 
-bool tmdb::provider::write(const char* buffer, std::size_t len)
+bool grone::provider::write(const char* buffer, std::size_t len)
 {
     std::size_t shift = 0;
 
@@ -177,18 +177,18 @@ bool tmdb::provider::write(const char* buffer, std::size_t len)
     return true;
 }
 
-bool tmdb::provider::write(const std::vector<unsigned char>& msg)
+bool grone::provider::write(const std::vector<unsigned char>& msg)
 {
     return write(reinterpret_cast<const char*>(msg.data()), msg.size());
 }
 
-bool tmdb::provider::write(const std::string& msg)
+bool grone::provider::write(const std::string& msg)
 {
     return write(msg.c_str(), msg.length()); 
 }
 
 
-bool tmdb::provider::close()
+bool grone::provider::close()
 {
     state_ = state::undef;
     if(::shutdown(get_socket_id(), SHUT_WR) != 0)
@@ -201,7 +201,7 @@ bool tmdb::provider::close()
 
 
 
-bool tmdb::provider::read(unsigned char* buffer, std::size_t len)
+bool grone::provider::read(unsigned char* buffer, std::size_t len)
 {
     std::size_t read = 0;
     while(read < len)

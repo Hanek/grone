@@ -9,7 +9,7 @@
 #ifndef _SERVER_H
 #define _SERVER_H
 
-namespace tmdb
+namespace grone
 {
     class time;
     class serializer;
@@ -23,8 +23,8 @@ namespace tmdb
     public:
         server(core&, size_t, size_t);
         ~server();
-        static void worker(int id, tmdb::provider&, tmdb::server&);
-        void dispatch(tmdb::request&, tmdb::request&);
+        static void worker(int id, grone::provider&, grone::server&);
+        void dispatch(grone::request&, grone::request&);
         void run();
         
     };

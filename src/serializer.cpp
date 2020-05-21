@@ -1,7 +1,7 @@
 #include "serializer.hpp"
 #include  <plog/Log.h>
 
-namespace tmdb
+namespace grone
 {
 int serializer::dev_id_max_ = 4096;
 

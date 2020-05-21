@@ -7,7 +7,7 @@
 #ifndef _DB_SOCKET_H
 #define _DB_SOCKET_H
 
-namespace tmdb
+namespace grone
 {
   class time;
   class serializer;

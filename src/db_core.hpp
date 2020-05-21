@@ -12,7 +12,7 @@
 #define _DB_CORE_H
 
 /* 
- * tmdb used to store time series as blobs nearly equal size
+ * grone used to store time series as blobs nearly equal size
  * time series defined as pod data with id
  * 
  * each blob name holds index and time bounds of data
@@ -51,7 +51,7 @@
 
 
 
-namespace tmdb
+namespace grone
 {
   class time;
   class serializer;
@@ -71,13 +71,13 @@ namespace tmdb
 
     /*************** public api ***************/
     void init();
-    std::map<const char, std::function<void(tmdb::request&, tmdb::request&)> > dispatchMap_;    
+    std::map<const char, std::function<void(grone::request&, grone::request&)> > dispatchMap_;    
     
     /* get some data now... */
-    void get(tmdb::request& req, tmdb::request& resp);
+    void get(grone::request& req, grone::request& resp);
     
     /* list registered devices */
-    void device_list(tmdb::request& req, tmdb::request& resp);
+    void device_list(grone::request& req, grone::request& resp);
     
   private:
     static bool instance_;

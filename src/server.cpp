@@ -8,27 +8,27 @@
 #include "server.hpp"
 
 
-tmdb::server::server(core& c, size_t pool_size, size_t max_connections): 
+grone::server::server(core& c, size_t pool_size, size_t max_connections): 
 core_(c), pool_size_(pool_size), max_connections_(max_connections)
 {
 
     
 }
  
-tmdb::server::~server()
+grone::server::~server()
 {
     
 }
 
 
 
-void tmdb::server::worker(int id, tmdb::provider& socket, tmdb::server& obj)
+void grone::server::worker(int id, grone::provider& socket, grone::server& obj)
 {
-    tmdb::protocol server(socket);  
+    grone::protocol server(socket);  
     while(server.is_ready_)
     {
-        tmdb::request req;
-        tmdb::request rep;
+        grone::request req;
+        grone::request rep;
         server.recv(req);
         if(!server.is_ready_)
         { break; }
@@ -44,7 +44,7 @@ void tmdb::server::worker(int id, tmdb::provider& socket, tmdb::server& obj)
 }
  
 
-void tmdb::server::dispatch(tmdb::request& req, tmdb::request& rep)
+void grone::server::dispatch(grone::request& req, grone::request& rep)
 {
   auto it = core_.dispatchMap_.find(req.type_);
   if(it == core_.dispatchMap_.end())
@@ -56,17 +56,17 @@ void tmdb::server::dispatch(tmdb::request& req, tmdb::request& rep)
 }
 
 
-void tmdb::server::run()
+void grone::server::run()
 {
     int pool_size = 2;
     
     ctpl::thread_pool pool(pool_size);
-    tmdb::listener listener(8080);
+    grone::listener listener(8080);
     while(true)
     {
         std::cout << "listening...\n";
-        tmdb::provider accepted = listener.accept();      
-        pool.push(tmdb::server::worker, std::move(accepted), std::move(*this));
+        grone::provider accepted = listener.accept();      
+        pool.push(grone::server::worker, std::move(accepted), std::move(*this));
     }
 }
 

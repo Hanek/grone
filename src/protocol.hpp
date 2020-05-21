@@ -7,7 +7,7 @@
 #ifndef _DB_PROTOCOL_H
 #define _DB_PROTOCOL_H
 
-namespace tmdb
+namespace grone
 {
     class provider;
     

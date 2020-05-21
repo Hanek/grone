@@ -3,7 +3,7 @@
 #include "serializer.hpp"
 #include "devices.hpp"
 
-namespace tmdb
+namespace grone
 {
   bool core::instance_ = false;
   std::map<time,std::pair<unsigned char*,int> > core::bmap_;
@@ -31,8 +31,8 @@ namespace tmdb
   {
     dispatchMap_ = 
     {
-      {0x01, [=](tmdb::request& req, tmdb::request& rep) { this->get(req, rep); } },
-      {0x02,  [=](tmdb::request& req, tmdb::request& rep) { this->device_list(req, rep); } } 
+      {0x01, [=](grone::request& req, grone::request& rep) { this->get(req, rep); } },
+      {0x02,  [=](grone::request& req, grone::request& rep) { this->device_list(req, rep); } } 
     };
       
   }
@@ -129,7 +129,7 @@ namespace tmdb
   
   void core::dm_walk()
   {
-    tmdb::device* pDev = 0;   
+    grone::device* pDev = 0;   
     std::cout << "==================== dm_walk ====================\n";
     
     for(auto cit = dmap_.begin(); cit != dmap_.end(); cit++)
@@ -153,7 +153,7 @@ namespace tmdb
 
   void core::fetch_device_data(const std::string& device_id)
   {
-    tmdb::device* pDev = 0;
+    grone::device* pDev = 0;
     pDev = factory_->create(device_id.c_str());
     auto cit = dmap_.find(device_id);
     if(!pDev || dmap_.end() == cit)

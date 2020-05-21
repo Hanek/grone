@@ -18,11 +18,11 @@
 void linear_serializer_test()
 { 
   int n = 10;
-  char p[tmdb::serializer::dev_id_max()] = {0};
-  char str[tmdb::serializer::dev_id_max()];
+  char p[grone::serializer::dev_id_max()] = {0};
+  char str[grone::serializer::dev_id_max()];
   float f = 3.141592;
       
-  tmdb::serializer is(4), os(4);
+  grone::serializer is(4), os(4);
   
   for(int i = 0; i < n; i++)
   {
@@ -31,7 +31,7 @@ void linear_serializer_test()
     sprintf(str, "cstring: #%d", i<<2);
     for(int j = 0; j < i; j++) { strcat(str, "__"); }
     is.sign_block(p);
-    is.serialize<int>(tmdb::serializer::dev_id_max() + i);
+    is.serialize<int>(grone::serializer::dev_id_max() + i);
     is.serialize<char>('a' + i);
     is.serialize(str);
     is.serialize<char>('A' + i);
@@ -165,7 +165,7 @@ void test_std_queue()
 
 int counter = 0;
 
-void fill_device1(tmdb::test_device1::data& d1_unit)
+void fill_device1(grone::test_device1::data& d1_unit)
 {
   char buf[1024] = {0};
   d1_unit.x_ = counter;
@@ -177,7 +177,7 @@ void fill_device1(tmdb::test_device1::data& d1_unit)
   d1_unit.mode_ = counter;
 }
 
-void fill_device2(tmdb::test_device2::data& d2_unit)
+void fill_device2(grone::test_device2::data& d2_unit)
 {
   char buf[1024] = {0};
   d2_unit.x_ = counter;
@@ -189,12 +189,12 @@ void fill_device2(tmdb::test_device2::data& d2_unit)
 
 
 
-void fill_dev_test(tmdb::core& c)
+void fill_dev_test(grone::core& c)
 {
-  tmdb::test_device1::data d1_unit;
-  tmdb::test_device2::data d2_unit;
+  grone::test_device1::data d1_unit;
+  grone::test_device2::data d2_unit;
 
-  tmdb::device* pDev = 0;
+  grone::device* pDev = 0;
 
   for(int i = 0; i < 3; i++)
   {
@@ -255,8 +255,8 @@ void fill_dev_test(tmdb::core& c)
   
 int main()
 {
-  plog::init(plog::error, "tmdb.log");
-  LOG_NONE << "---------------------- tmdb start ----------------------";
+  plog::init(plog::error, "grone.log");
+  LOG_NONE << "---------------------- grone start ----------------------";
   
   
 //  get_block_test();
@@ -265,7 +265,7 @@ int main()
   
   //   linear_serializer_test();
   //   linear_std_stream_test(4000000);  
-  // tmdb_test();
+  // grone_test();
   // devices_test1();
 //  core_factory_test();
 
@@ -274,12 +274,12 @@ int main()
   
 //  tcp_server_test();
   
-  tmdb::core c;
+  grone::core c;
   c.init();
   fill_dev_test(c);
   c.dm_walk();
   
-  tmdb::server server(c, 2, 3);
+  grone::server server(c, 2, 3);
   server.run();
   
 

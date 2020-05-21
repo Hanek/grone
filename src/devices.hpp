@@ -10,7 +10,7 @@
 #ifndef _DEVICES_H
 #define _DEVICES_H
 
-namespace tmdb
+namespace grone
 {
     class serializer;
 

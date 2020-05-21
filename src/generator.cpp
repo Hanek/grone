@@ -251,7 +251,7 @@ void generator::dump_source(const std::string& str)
     devices << "#include \"devices.hpp\"\n";
     devices << "#include \"serializer.hpp\"\n";
     devices << newline(4);
-    devices << "namespace tmdb\n";
+    devices << "namespace grone\n";
     devices << "{\n";
     devices << intend(1) << "serializer* device::ins = new serializer(1024);\n";
     
@@ -411,7 +411,7 @@ void generator::dump_header(const std::string& str)
     devices << "#ifndef _DEVICES_H\n";
     devices << "#define _DEVICES_H\n";
     devices << newline(1);
-    devices << "namespace tmdb\n";
+    devices << "namespace grone\n";
     devices << "{\n";
     devices << intend(1) << "class serializer;\n";
     devices << newline(1);

@@ -13,9 +13,9 @@ int main(int argc, char* argv[])
         std::exit(1);
     }
 
-    tmdb::connector socket(argv[1], 8080);
-    tmdb::protocol client(socket);
-    tmdb::request req;
+    grone::connector socket(argv[1], 8080);
+    grone::protocol client(socket);
+    grone::request req;
       
     std::string hreq("some request..");
     std::vector<unsigned char> breq;

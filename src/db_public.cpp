@@ -3,12 +3,12 @@
 #include "serializer.hpp"
 #include "devices.hpp"
 
-namespace tmdb
+namespace grone
 {
 
- void core::get(tmdb::request& req, tmdb::request& resp)
+ void core::get(grone::request& req, grone::request& resp)
   {
-//    tmdb::device* pDev = 0;
+//    grone::device* pDev = 0;
 //    std::vector<unsigned char> buf;
 //    pDev = factory_->create(device_id.c_str());
 //    auto it = dmap_.find(device_id);
@@ -41,7 +41,7 @@ namespace tmdb
   }
  
  
- void core::device_list(tmdb::request& req, tmdb::request& resp)
+ void core::device_list(grone::request& req, grone::request& resp)
  {
 //     resp = factory_->get_device_list();
  }

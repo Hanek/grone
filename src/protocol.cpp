@@ -17,13 +17,13 @@
  * --------------------------------------
  */
 
-void tmdb::protocol::send(const std::string& message, const char& type)
+void grone::protocol::send(const std::string& message, const char& type)
 {
     const_request req(message, type);
     return send(req);
 }
   
-void tmdb::protocol::send(const_request& req)
+void grone::protocol::send(const_request& req)
 {
     socket_.write<char>(req.type_);
     socket_.write<size_t>(req.len_);
@@ -35,7 +35,7 @@ void tmdb::protocol::send(const_request& req)
     }  
 }
  
-void tmdb::protocol::send(request& req)
+void grone::protocol::send(request& req)
 {
     socket_.write<char>(req.type_);
     socket_.write<size_t>(req.outlen_);
@@ -52,7 +52,7 @@ void tmdb::protocol::send(request& req)
 }
 
 
-void tmdb::protocol::recv(std::string& message, char& type)
+void grone::protocol::recv(std::string& message, char& type)
 {
     size_t len;
     socket_.read<char>(&type);
@@ -68,7 +68,7 @@ void tmdb::protocol::recv(std::string& message, char& type)
     message = buffer;
 }
 
-void tmdb::protocol::recv(request& req)
+void grone::protocol::recv(request& req)
 {
     
     socket_.read<char>(&req.type_);

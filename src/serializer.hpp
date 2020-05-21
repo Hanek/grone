@@ -14,70 +14,59 @@
 #include <vector>
 #include <typeinfo>
 #include <fstream>
-#include  <plog/Log.h>
+#include <plog/Log.h>
 
 #ifndef _SERIALIZER_H
 #define _SERIALIZER_H  
 
 
-namespace tmdb
+namespace grone
 {
-
-/*
- * - no easy way to handle multiple devices
- * - each would require callbacks
- * - what if data sources change
- * -------------------------------------------------------------
- * - totaly idependent serialization that satisfy tlv stadanard 
- *   could be a possible solution
- * 
- */ 
-class serializer
-{
-/*  
- *                        block structure
- * 
- *    |_|_|_|_|0|_|_|_|_|_|_|_|_|_|_|_|_|_|_|0|_|_|_|_|_|_|_|_|
- *    | dev_id  |  len  |       |             |               |
- *    | cstring | size_t|  int  |   cstring   |     float     |
- *    |s i g n a t u r e|          b l o c k   b o d y        |
- *
- *    serializer used to accumulate pod data as blocks
- *    each block starts with sign_block() with dev_id of variable length, 
- *    ends up with finalize()   
- */
+  class serializer
+  {
+   /*
+    *                        block structure
+    *
+    *    |_|_|_|_|0|_|_|_|_|_|_|_|_|_|_|_|_|_|_|0|_|_|_|_|_|_|_|_|
+    *    | dev_id  |  len  |       |             |               |
+    *    | cstring | size_t|  int  |   cstring   |     float     |
+    *    |s i g n a t u r e|          b l o c k   b o d y        |
+    *
+    *    serializer used to accumulate pod data as blocks
+    *    each block starts with sign_block() with dev_id of variable length,
+    *    ends up with finalize()
+    */
 
 private:
-  /* whole message length */
-  int    message_len_;
-  /* dynamically allocated buffer */
-  unsigned char*  buf_;
-  unsigned char*  buf_copy_;
+    /* whole message length */
+    int             message_len_;
 
-  /* current position */
-  unsigned char*  pos_;
-  /* begininng of current block */
-  unsigned char*  beg_;
-  /* current block length, calculated on finalize() */
-  int block_len_;
-    
-  /* size of buffer */
-  size_t size_;
+    /* dynamically allocated buffer */
+    unsigned char*  buf_;
+    unsigned char*  buf_copy_;
 
-  /* length of dev_id header, calculated as (dev_id) */
-  int hlen_;
-  
-  /* max length of dev_id header */  
-  static int dev_id_max_;
+    /* current position */
+    unsigned char*  pos_;
+    /* begininng of the current block */
+    unsigned char*  beg_;
+    /* current block length, calculated on finalize() */
+    int block_len_;
 
-  /* on if constructed with external buffer */
-  bool external_;  
+    /* size of the buffer */
+    size_t size_;
 
-  std::map<std::string, std::vector<std::string> > device_map_;
+    /* length of dev_id header, calculated as (dev_id) */
+    int hlen_;
 
-  bool out_of_mem();
-   
-public:
+    /* max length of dev_id header */
+    static int dev_id_max_;
+
+    /* on if constructed with external buffer */
+    bool external_;
+
+    bool out_of_mem();
+
+  public:
   serializer(size_t size);  
   serializer(unsigned char* buf);
   serializer(unsigned char* buf, int len);
