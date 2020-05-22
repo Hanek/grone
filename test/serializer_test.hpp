@@ -14,9 +14,11 @@ namespace test
 	class serializer_test 
 	{
 	private:
-		grone::serializer s_;
+		unsigned long long system_memory_size_;
+
 	public:
-		void test1();
+		serializer_test();
+		void ctor_test();
 
 
 	};

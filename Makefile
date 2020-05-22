@@ -21,8 +21,9 @@ CLIENT_SOURCES = \
           src/client.cpp
 
 TEST_SOURCES = \
-          test/test.cpp\
-          test/serializer_test.cpp
+          src/serializer.cpp\
+          test/serializer_test.cpp\
+          test/test.cpp
 
 OBJECTS = $(SOURCES:%.cpp=%.o)
 	

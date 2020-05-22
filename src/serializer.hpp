@@ -1,11 +1,3 @@
-/*
- * pod serializer requirements:
- * - named blocks with pod types defined by user;
- * - varibale header length 
- */ 
-
-// g++ -Wall -Wextra `pkg-config --cflags glib-2.0` test.cpp -o test `pkg-config --libs glib-2.0`
-
 #include <cstring>
 #include <cstdlib>
 #include <cerrno>
@@ -41,7 +33,7 @@ private:
     /* whole message length */
     int             message_len_;
 
-    /* dynamically allocated buffer */
+    /* internal buffer */
     unsigned char*  buf_;
     unsigned char*  buf_copy_;
 
@@ -61,23 +53,41 @@ private:
     /* max length of dev_id header */
     static int dev_id_max_;
 
-    /* on if constructed with external buffer */
+    /* set when constructed with external buffer */
     bool external_;
 
-    bool out_of_mem();
+    bool reallocate();
 
-  public:
-  serializer(size_t size);  
-  serializer(unsigned char* buf);
-  serializer(unsigned char* buf, int len);
-  ~serializer() { if(!external_){ delete[] buf_; } }
-  bool empty() { return (0 == size_) ? 1 : 0; }
-  size_t get_size() { return size_; }
-  size_t length() { return message_len_; }
-  size_t get_hlen() { return hlen_; }
-  unsigned char* get_buffer() { return buf_; }
-  static int dev_id_max() { return dev_id_max_; }
+
   
+  public:
+    /* two basic modes offered:
+     * external - when user holds responsibility for suppling and maintaining of external memory
+     * internal - when buffer is allocated and managed by serializer */
+    
+    /* internal mode */
+    serializer(size_t size);
+    /* external mode */
+    serializer(unsigned char* buf);
+    /* external mode */
+    serializer(unsigned char* buf, int len);
+    ~serializer() { if (!external_) { delete[] buf_; } }
+
+    bool   empty()    const { return (size_) ? true : false; }
+    size_t get_size() const { return size_; }
+    size_t get_hlen() const { return hlen_; }
+    size_t length()   const { return message_len_; }
+    unsigned char* get_buffer() const { return buf_; }
+    
+    static int dev_id_max() { return dev_id_max_; }
+
+    /* called prior to device serialization */ 
+    void sign_block(const char* id);
+    /* called when device serialization is done */
+    void finalize_block();
+
+    
+
   /* copy data to serializer */
   void update_buffer(unsigned char* bufin, size_t sizein);
   
@@ -93,10 +103,6 @@ private:
   unsigned char* copy_buffer();
   void clear();
   void reset();
-  /* called prior to device serialization */ 
-  void sign_block(const char* id);
-  /* called when device serialization is done */
-  void finalize_block();
   /* 
    * read block into id and set pointer to data,
    * must be followed by deserialize() methods
@@ -119,7 +125,7 @@ private:
     {
       size_t  nlen = strlen("NULL");
       if(nlen >= size_ - (pos_ - buf_) - 1)
-      { out_of_mem(); }
+      { reallocate(); }
       
       memcpy(pos_, "NULL", nlen); 
       pos_ += nlen; 
@@ -129,7 +135,7 @@ private:
     }
     
     if(strlen(str) >= size_ - (pos_ - buf_) - 1)
-    { out_of_mem(); }
+    { reallocate(); }
     
     memcpy(pos_, str, strlen(str)); 
     pos_ += strlen(str); 
@@ -147,7 +153,7 @@ private:
     }
     
     if(sizeof(T) >= size_ - (pos_ - buf_) - 1)
-    { out_of_mem(); }
+    { reallocate(); }
     
     memcpy(pos_, &var, sizeof(T)); 
     pos_ += sizeof(T);

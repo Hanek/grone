@@ -3,67 +3,71 @@
 
 namespace grone
 {
-int serializer::dev_id_max_ = 4096;
+  int serializer::dev_id_max_ = 4096;
 
-serializer::serializer(size_t size): size_(size), hlen_(0), external_(false)
-  {  
+  /***********************************************/
+  /*                 public scope                */
+  /***********************************************/
+
+  serializer::serializer(size_t size): size_(size), hlen_(0), external_(false)
+  {
     buf_  = new(std::nothrow)unsigned char[size_];
-    if(!buf_)
-    { 
+    if (!buf_)
+    {
       LOG_FATAL << "buffer allocation failed: " << strerror(errno);
       return;
     }
     memset(buf_, 0x00, size_);
     message_len_ = 0;
-    pos_         = buf_ + hlen_; 
+    pos_         = buf_ + hlen_;
     beg_         = buf_;
     block_len_   = 0;
   }
 
-  
-/* used for deserializing external buffers */
-serializer::serializer(unsigned char* buf): size_(32), hlen_(0), external_(true)
-  {  
+
+  serializer::serializer(unsigned char* buf): size_(32), hlen_(0), external_(true)
+  {
     buf_  = buf;
     message_len_ = 0;
-    pos_         = buf_ + hlen_; 
+    pos_         = buf_ + hlen_;
     beg_         = buf_;
     block_len_   = 0;
   }
 
 
-serializer::serializer(unsigned char* buf, int len): size_(len), hlen_(0), external_(true)
-  { 
-    LOG_DEBUG << "serializer length: " << len;
+  serializer::serializer(unsigned char* buf, int len): size_(len), hlen_(0), external_(true)
+  {
     buf_  = buf;
     message_len_ = len;
-    pos_         = buf_ + hlen_; 
+    pos_         = buf_ + hlen_;
     beg_         = buf_;
     block_len_   = 0;
   }
 
+  /***********************************************/
+  /*                 private scope               */
+  /***********************************************/
 
-
-bool serializer::out_of_mem()
+  bool serializer::reallocate()
   {
-    /* realloc preserving old data */  
+    /* realloc preserving old data */
     size_ *= 2;
     size_t shift1 = pos_ - buf_;
     size_t shift2 = beg_ - buf_;
     unsigned char* buf_new;
     buf_new = new(std::nothrow)unsigned char[size_];
-    if(!buf_new)
+    if (!buf_new)
     {
       LOG_FATAL << "buffer allocation failed: " << strerror(errno);
       return false;
     }
     memset(buf_new, 0x00, size_);
-    memcpy(buf_new, buf_, size_/2);
+    memcpy(buf_new, buf_, size_ / 2);
     delete[] buf_;
     buf_ = buf_new;
     pos_ = buf_ + shift1;
     beg_ = buf_ + shift2;
-            
+
     LOG_DEBUG << "realloc to " << size_ << " bytes";
     return true;
   }
@@ -73,7 +77,7 @@ bool serializer::out_of_mem()
 void serializer::update_buffer(unsigned char* bufin, size_t sizein)
   {
     while(size_ <= sizein)
-    { out_of_mem(); }
+    { reallocate(); }
     memcpy(buf_, bufin, sizein);
     message_len_ = (int)sizein;
   }
@@ -143,13 +147,13 @@ void serializer::clear()
       hlen_ = 1;
       *beg_ = 0x00;
       while(pos_ - buf_ + hlen_ + sizeof(hlen_) >= size_)
-      { out_of_mem(); }
+      { reallocate(); }
     }
     else
     {
       hlen_ = strlen(id) + 1;
       while(pos_ - buf_ + hlen_ + sizeof(hlen_) >= size_)
-      { out_of_mem(); }
+      { reallocate(); }
       memcpy(beg_, id, hlen_);
       *(beg_ + hlen_) = 0x00;
     }
@@ -178,7 +182,7 @@ void serializer::clear()
     hlen_ = strlen(id);
     
     while(pos_ - buf_ + hlen_ + sizeof(hlen_) >= size_)
-    { out_of_mem(); }
+    { reallocate(); }
     
     if(message_len_ <= pos_ - buf_)
     { return false; }
@@ -200,7 +204,7 @@ void serializer::clear()
     while(pos_ - buf_ + hlen_ + sizeof(hlen_) >= size_)
     { /* TODO unit test */
       if(!external_) 
-      { out_of_mem(); } 
+      { reallocate(); } 
       else
       { return NULL; }
     }
