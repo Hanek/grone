@@ -44,6 +44,59 @@ namespace grone
     block_len_   = 0;
   }
 
+
+  void serializer::serialize(const std::string& str) 
+  {
+      serialize(str.c_str());
+  }
+  
+
+  void serializer::serialize(const char* str)
+  {
+    /* invalid/empty cstring coded as "NULL" */
+    if (!str)
+    {
+      size_t  nlen = strlen("NULL");
+      while (nlen >= size_ - (pos_ - buf_) - 1)
+      { reallocate(); }
+
+      memcpy(pos_, "NULL", nlen);
+      pos_ += nlen;
+      *pos_ = 0x00;
+      pos_ += 1;
+      return;
+    }
+
+    while (strlen(str) >= size_ - (pos_ - buf_) - 1)
+    { reallocate(); }
+
+    memcpy(pos_, str, strlen(str));
+    pos_ += strlen(str);
+    *pos_ = 0x00;
+    pos_ += 1;
+  }
+
+
+  void serializer::deserialize(char* str)
+  {
+    memcpy((void*)str, reinterpret_cast<const char*>(pos_), strlen(reinterpret_cast<const char*>(pos_)));
+    pos_ += strlen(reinterpret_cast<const char*>(pos_)) + 1;
+  }
+
+
+  void serializer::deserialize(std::string & str)
+  {
+    str = std::string(reinterpret_cast<const char*>(pos_));
+    pos_ += strlen(reinterpret_cast<const char*>(pos_)) + 1;
+  }
+
+  void serializer::dump()
+  {
+    std::ofstream file("buf.bin", std::ios::out | std::ios::binary);
+    file.write(reinterpret_cast<const char*>(buf_), size_);
+    file.close();
+  }
+
   /***********************************************/
   /*                 private scope               */
   /***********************************************/
@@ -93,7 +146,7 @@ void serializer::shrink_to_fit()
     return;
   }
 
-  memcpy(static_cast<void*>(mem), buf_, size_);
+  memcpy(mem, buf_, size_);
   buf_copy_ = buf_;
   buf_ = mem;
 }

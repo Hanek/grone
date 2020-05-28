@@ -9,11 +9,12 @@
 
 int main()
 {
-    plog::init(plog::error, "test.log");
-    LOG_NONE << "autotests running... ";
+    plog::init(plog::debug, "test.log");
+    LOG_NONE << "---==[ autotests running... ]==---";
 
     test::serializer_test st;
-    st.ctor_test();
+    // st.ctor_test();
+    st.serialization_test1();
 
 
 }

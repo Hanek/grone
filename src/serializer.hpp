@@ -86,92 +86,58 @@ private:
     /* called when device serialization is done */
     void finalize_block();
 
+    void dump();
     
 
-  /* copy data to serializer */
-  void update_buffer(unsigned char* bufin, size_t sizein);
+    /* copy data to serializer */
+    void update_buffer(unsigned char* bufin, size_t sizein);
+
+    /*
+     * paired, used by cacheIt exclusivly
+     * - realloc to fit data to message_len_, returns pointer to old buffer
+     * - detaching allows buffer reuse and avoid extra allocs
+     */
+    void shrink_to_fit();
+    unsigned char* detach_buffer();
+
+    /* allocate memory and copy */
+    unsigned char* copy_buffer();
+    void clear();
+    void reset();
+    /*
+     * read block into id and set pointer to data,
+     * must be followed by deserialize() methods
+     */
+    bool read_block(char* id);
+    /* iterate over dev_id */
+    unsigned char* get_block(char* id);
+
+    /******************** serialization methods ********************/
+    void serialize(const std::string & str);
+
+    void serialize(const char* str);
   
-  /* 
-   * paired, used by cacheIt exclusivly 
-   * - realloc to fit data to message_len_, returns pointer to old buffer
-   * - detaching allows buffer reuse and avoid extra allocs
-   */
-  void shrink_to_fit();
-  unsigned char* detach_buffer();
   
-  /* allocate memory and copy */
-  unsigned char* copy_buffer();
-  void clear();
-  void reset();
-  /* 
-   * read block into id and set pointer to data,
-   * must be followed by deserialize() methods
-   */
-  bool read_block(char* id);
-  /* iterate over dev_id */
-  unsigned char* get_block(char* id);
-  
-  /******************** serialization methods ********************/
-  
-  void serialize(const std::string& str) 
-  {
-      serialize(str.c_str());
-  }
-  
-  void serialize(const char* str) 
-  {
-   /* empty cstring coded as "NULL" */  
-    if(!str) 
+    template <class T> void serialize(T var)
     {
-      size_t  nlen = strlen("NULL");
-      if(nlen >= size_ - (pos_ - buf_) - 1)
+      if (!std::is_trivial<T>::value)
+      {
+        LOG_NONE << "skipping non_trivial type: " << typeid(T).name();
+        return;
+      }
+
+      while (sizeof(T) >= size_ - (pos_ - buf_) - 1)
       { reallocate(); }
-      
-      memcpy(pos_, "NULL", nlen); 
-      pos_ += nlen; 
-      *pos_ = 0x00; 
-      pos_ += 1;
-      return;
+
+      memcpy(pos_, &var, sizeof(T));
+      pos_ += sizeof(T);
     }
-    
-    if(strlen(str) >= size_ - (pos_ - buf_) - 1)
-    { reallocate(); }
-    
-    memcpy(pos_, str, strlen(str)); 
-    pos_ += strlen(str); 
-    *pos_ = 0x00; 
-    pos_ += 1;
-  }
-  
-  
-  template <class T> void serialize(T var) 
-  {
-    if(!std::is_trivial<T>::value)
-    { 
-      LOG_NONE << "skipping non_trivial type: " << typeid(T).name();
-      return;
-    }
-    
-    if(sizeof(T) >= size_ - (pos_ - buf_) - 1)
-    { reallocate(); }
-    
-    memcpy(pos_, &var, sizeof(T)); 
-    pos_ += sizeof(T);
-  }
   
   /******************** deserialization methods ********************/
   
-  void deserialize(char* str)
-  {
-    memcpy((void*)str, reinterpret_cast<const char*>(pos_), strlen(reinterpret_cast<const char*>(pos_))); 
-    pos_ += strlen(reinterpret_cast<const char*>(pos_)) + 1;
-  }
+  void deserialize(char* str);
   
-  void deserialize(std::string& str)
-  {
-    str = std::string(reinterpret_cast<const char*>(pos_));
-    pos_ += strlen(reinterpret_cast<const char*>(pos_)) + 1;
-  }
+  void deserialize(std::string& str);
   
   template <class T> void deserialize(T* var)
   {
@@ -194,14 +160,6 @@ private:
     return sizeof(T);
   }
   
-  /******************************************************************/
-  
-  void dump()
-  {
-    std::ofstream file("buf.bin", std::ios::out | std::ios::binary);
-    file.write(reinterpret_cast<const char*>(buf_), size_);
-    file.close();
-  }
 };
 
   
